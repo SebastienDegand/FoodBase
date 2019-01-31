@@ -11,17 +11,17 @@ app.use(express.static(__dirname + "/public"));
 app.get("/api/v1/foods", async function(req, res) {
   try {
     let page =
-      req.param("page") === undefined ||
-      req.param("page") === "" ||
-      req.param("page") <= 0
+      req.query.page === undefined ||
+      req.query.page === "" ||
+      req.query.page <= 0
         ? 1
-        : req.param("page");
+        : req.query.page;
     let per_page =
-      req.param("per_page") === undefined ||
-      req.param("per_page") === "" ||
-      req.param("per_page") <= 0
+      req.query.per_page === undefined ||
+      req.query.per_page === "" ||
+      req.query.per_page <= 0
         ? 30
-        : req.param("per_page");
+        : req.query.per_page;
     let pagination = {};
 
     pagination.skip = per_page * (page - 1);
