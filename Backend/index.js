@@ -10,10 +10,27 @@ app.use(express.static(__dirname + "/public"));
 
 app.get("/api/v1/foods", async function(req, res) {
   try {
+    let page =
+      req.query.page === undefined ||
+      req.query.page === "" ||
+      req.query.page <= 0
+        ? 1
+        : req.query.page;
+    let per_page =
+      req.query.per_page === undefined ||
+      req.query.per_page === "" ||
+      req.query.per_page <= 0
+        ? 30
+        : req.query.per_page;
+    let pagination = {};
+
+    pagination.skip = per_page * (page - 1);
+    pagination.limit = parseInt(per_page);
+
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
     const db = await client.db("foodbasedb");
-    let foods = await findFoods(db);
+    let foods = await findFoods(db, pagination);
     res.send(foods);
   } catch (error) {
     console.log(error);
@@ -36,11 +53,12 @@ app.listen(port, () => {
   console.log("listening on " + port);
 });
 
-async function findFoods(db) {
+async function findFoods(db, pagination) {
   const collection = await db.collection("france");
   const foods = await collection
     .find({})
-    .limit(30)
+    .limit(pagination.limit)
+    .skip(pagination.skip)
     .toArray();
   console.log("foods found");
   return foods;
