@@ -41,7 +41,7 @@ app.get("/api/v1/foods", async function(req, res) {
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
     const db = await client.db("foodbasedb");
-    let foods = await findFoods(db, pagination);
+    let foods = await findFoods(db, pagination, req.query.lastid);
     res.send(foods);
   } catch (error) {
     console.log(error);
@@ -83,31 +83,24 @@ app.listen(port, () => {
   console.log("listening on " + port);
 });
 
-async function findFoods(db, pagination) {
+async function findFoods(db, pagination, lastid) {
   const collection = await db.collection("france");
-  const totalDocument = await collection.countDocuments();
-  const foods = await collection.aggregate([
-    {
-      $facet: {
-        totalData: [
-          { $match: {} },
-          { $skip: pagination.skip },
-          { $limit: pagination.limit }
-        ]
-      }
-    },
-    {
-      $project: {
-        count: { $size: "$totalData" },
-        totalPage: {
-          $divide: [totalDocument, { $size: "$totalData" }]
-        },
-        data: "$totalData"
-      }
-    }
-  ]);
+  let foods;
+  if (lastid) {
+    foods = await collection
+      .find({ id: { $gt: lastid } })
+      .limit(pagination.limit)
+      .toArray();
+  } else {
+    foods = await collection
+      .find({})
+      .limit(pagination.limit)
+      .skip(pagination.skip)
+      .toArray();
+  }
+
   console.log("foods found");
-  return foods.next();
+  return foods;
 }
 
 async function findFoodsById(db, id) {
