@@ -4,7 +4,7 @@ var serveStatic = require('serve-static')
 
 var app = express()
 app.use(serveStatic(path.join(__dirname, '.')))
-var port = process.env.PORT || 8080
+var port = process.env.PORT || 3000
 
 app.listen(port)
 console.log('server started on port ' + port)
