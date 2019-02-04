@@ -2,11 +2,16 @@
 <template>
   <div id="app">
     <navigation></navigation>
+    <v-app>
+    <product-tab></product-tab>
+    </v-app>
   </div>
 </template>
 
 <script>
 
+import ProductTab from "./ProductTab";
+import Test from "./Test";
 export default {
   name: 'app',
   data () {
@@ -14,7 +19,9 @@ export default {
       msg: 'Welcome to Your Vue.js App'
     }
   },
-	components: { 				
+	components: {
+    Test,
+    ProductTab
 	}
 }
 </script>
