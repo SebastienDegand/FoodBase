@@ -10,10 +10,13 @@ let db = null;
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/public"));
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Methods", "*");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
+  res.header("Access-Control-Allow-Methods", "*");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
 });
 
 app.get("/api/v1/foods", async function(req, res) {
@@ -82,13 +85,29 @@ app.listen(port, () => {
 
 async function findFoods(db, pagination) {
   const collection = await db.collection("france");
-  const foods = await collection
-    .find({})
-    .limit(pagination.limit)
-    .skip(pagination.skip)
-    .toArray();
+  const totalDocument = await collection.countDocuments();
+  const foods = await collection.aggregate([
+    {
+      $facet: {
+        totalData: [
+          { $match: {} },
+          { $skip: pagination.skip },
+          { $limit: pagination.limit }
+        ]
+      }
+    },
+    {
+      $project: {
+        count: { $size: "$totalData" },
+        totalPage: {
+          $divide: [totalDocument, { $size: "$totalData" }]
+        },
+        data: "$totalData"
+      }
+    }
+  ]);
   console.log("foods found");
-  return foods;
+  return foods.next();
 }
 
 async function findFoodsById(db, id) {
