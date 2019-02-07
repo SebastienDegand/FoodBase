@@ -21,22 +21,7 @@ app.use(function(req, res, next) {
 
 app.get("/api/v1/foods", async function(req, res) {
   try {
-    let page =
-      req.query.page === undefined ||
-      req.query.page === "" ||
-      req.query.page <= 0
-        ? 1
-        : req.query.page;
-    let per_page =
-      req.query.per_page === undefined ||
-      req.query.per_page === "" ||
-      req.query.per_page <= 0
-        ? 30
-        : req.query.per_page;
-    let pagination = {};
-
-    pagination.skip = per_page * (page - 1);
-    pagination.limit = parseInt(per_page);
+    let pagination = getPagination(req);
 
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
@@ -79,28 +64,45 @@ app.put("/api/v1/foods/:id", async function(req, res) {
   }
 });
 
+app.post("/api/v1/recipes", async function(req, res) {
+  try {
+    const client = await new MongoClient(url, { useNewUrlParser: true });
+    await client.connect();
+    const db = await client.db("foodbasedb");
+    const result = await addRecipe(
+      db,
+      req.body.name,
+      req.body.author,
+      req.body.ingredients
+    );
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/api/v1/recipes", async function(req, res) {
+  try {
+    let pagination = getPagination(req);
+    const client = await new MongoClient(url, { useNewUrlParser: true });
+    await client.connect();
+    const db = await client.db("foodbasedb");
+    const result = await getRecipes(db, pagination, req.query.lastid);
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(port, () => {
   console.log("listening on " + port);
 });
 
 async function findFoods(db, pagination, lastid) {
   const collection = await db.collection("france");
-  let foods;
-  if (lastid) {
-    foods = await collection
-      .find({ id: { $gt: lastid } })
-      .limit(pagination.limit)
-      .toArray();
-  } else {
-    foods = await collection
-      .find({})
-      .limit(pagination.limit)
-      .skip(pagination.skip)
-      .toArray();
-  }
-
+  let result = await findDocuments(collection, pagination, lastid);
   console.log("foods found");
-  return foods;
+  return result;
 }
 
 async function findFoodsById(db, id) {
@@ -127,4 +129,57 @@ async function updateFood(db, id, pricing) {
   const food = await collection.findOne({ _id: id });
   console.log("food " + id + " updated");
   return food;
+}
+
+async function addRecipe(db, name, author, ingredients) {
+  const collection = await db.collection("recipe");
+  const result = await collection.insert({
+    name: name,
+    author: author,
+    ingredients: ingredients
+  });
+  console.log("recipes added");
+  return result.ops[0];
+}
+
+async function getRecipes(db, pagination, lastid) {
+  const collection = await db.collection("recipe");
+  let result = await findDocuments(collection, pagination, lastid);
+  console.log("recipes found");
+  return result;
+}
+
+async function findDocuments(collection, pagination, lastid) {
+  let result;
+  if (lastid) {
+    result = await collection
+      .find({ id: { $gt: lastid } })
+      .limit(pagination.limit)
+      .toArray();
+  } else {
+    result = await collection
+      .find({})
+      .limit(pagination.limit)
+      .skip(pagination.skip)
+      .toArray();
+  }
+  return result;
+}
+
+function getPagination(req) {
+  let page =
+    req.query.page === undefined || req.query.page === "" || req.query.page <= 0
+      ? 1
+      : req.query.page;
+  let per_page =
+    req.query.per_page === undefined ||
+    req.query.per_page === "" ||
+    req.query.per_page <= 0
+      ? 30
+      : req.query.per_page;
+  let pagination = {};
+
+  pagination.skip = per_page * (page - 1);
+  pagination.limit = parseInt(per_page);
+  return pagination;
 }
