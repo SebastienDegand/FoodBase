@@ -107,6 +107,42 @@ app.get("/api/v1/recipes/:id", async function(req, res) {
   }
 });
 
+app.post("/api/v1/recipes/:id/comments", async function(req, res) {
+  try {
+    const client = await new MongoClient(url, { useNewUrlParser: true });
+    await client.connect();
+    const db = await client.db("foodbasedb");
+    const result = await addComment(
+      db,
+      req.body.note,
+      req.body.author,
+      req.body.comment,
+      req.params.id
+    );
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/api/v1/recipes/:id/comments", async function(req, res) {
+  try {
+    let pagination = getPagination(req);
+    const client = await new MongoClient(url, { useNewUrlParser: true });
+    await client.connect();
+    const db = await client.db("foodbasedb");
+    const result = await getComments(
+      db,
+      pagination,
+      req.query.lastid,
+      req.params.id
+    );
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(port, () => {
   console.log("listening on " + port);
 });
@@ -158,7 +194,7 @@ async function addRecipe(db, name, author, ingredients) {
     author: author,
     ingredients: ingredients
   });
-  console.log("recipes added");
+  console.log("recipe added");
   return result.ops[0];
 }
 
@@ -169,11 +205,43 @@ async function getRecipes(db, pagination, lastid) {
   return result;
 }
 
+async function addComment(db, note, author, comment, recipeId) {
+  const collection = await db.collection("comment");
+  const result = await collection.insert({
+    note: parseInt(note),
+    author: author,
+    comment: comment,
+    recipeId: ObjectId(recipeId),
+    ISODateTime: new Date().toISOString()
+  });
+  console.log("comment added");
+  return result.ops[0];
+}
+
+async function getComments(db, pagination, lastid, recipeId) {
+  const collection = await db.collection("comment");
+  let result;
+  if (lastid) {
+    result = await collection
+      .find({ recipeId: ObjectId(recipeId), _id: { $gt: lastid } })
+      .limit(pagination.limit)
+      .toArray();
+  } else {
+    result = await collection
+      .find({ recipeId: ObjectId(recipeId) })
+      .limit(pagination.limit)
+      .skip(pagination.skip)
+      .toArray();
+  }
+  console.log("comments found");
+  return result;
+}
+
 async function findDocuments(collection, pagination, lastid) {
   let result;
   if (lastid) {
     result = await collection
-      .find({ id: { $gt: lastid } })
+      .find({ _id: { $gt: lastid } })
       .limit(pagination.limit)
       .toArray();
   } else {
