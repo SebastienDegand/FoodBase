@@ -189,10 +189,11 @@ async function updateFood(db, id, pricing) {
 
 async function addRecipe(db, name, author, ingredients) {
   const collection = await db.collection("recipe");
-  const result = await collection.insert({
+  const result = await collection.insertOne({
     name: name,
     author: author,
-    ingredients: ingredients
+    ingredients: ingredients,
+    createTime: new Date().toISOString()
   });
   console.log("recipe added");
   return result.ops[0];
@@ -207,12 +208,12 @@ async function getRecipes(db, pagination, lastid) {
 
 async function addComment(db, note, author, comment, recipeId) {
   const collection = await db.collection("comment");
-  const result = await collection.insert({
+  const result = await collection.insertOne({
     note: parseInt(note),
     author: author,
     comment: comment,
     recipeId: ObjectId(recipeId),
-    ISODateTime: new Date().toISOString()
+    createTime: new Date().toISOString()
   });
   console.log("comment added");
   return result.ops[0];
