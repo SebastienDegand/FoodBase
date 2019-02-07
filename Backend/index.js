@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
+const ObjectId = require("mongodb").ObjectId;
 
 const MongoClient = require("mongodb").MongoClient;
 const url = "mongodb://admin:password06@ds111455.mlab.com:11455/foodbasedb";
@@ -38,7 +39,7 @@ app.get("/api/v1/foods/:id", async function(req, res) {
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
     const db = await client.db("foodbasedb");
-    let food = await findFoodsById(db, req.params.id);
+    let food = await findFoodById(db, req.params.id);
     res.send(food);
   } catch (error) {
     console.log(error);
@@ -94,6 +95,18 @@ app.get("/api/v1/recipes", async function(req, res) {
   }
 });
 
+app.get("/api/v1/recipes/:id", async function(req, res) {
+  try {
+    const client = await new MongoClient(url, { useNewUrlParser: true });
+    await client.connect();
+    const db = await client.db("foodbasedb");
+    let result = await findRecipeById(db, req.params.id);
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(port, () => {
   console.log("listening on " + port);
 });
@@ -105,11 +118,18 @@ async function findFoods(db, pagination, lastid) {
   return result;
 }
 
-async function findFoodsById(db, id) {
+async function findFoodById(db, id) {
   const collection = await db.collection("france");
   const food = await collection.findOne({ _id: id });
   console.log("food " + id + " found");
   return food;
+}
+
+async function findRecipeById(db, id) {
+  const collection = await db.collection("recipe");
+  const result = await collection.findOne({ _id: ObjectId(id) });
+  console.log("recipe " + id + " found");
+  return result;
 }
 
 async function updateFood(db, id, pricing) {
