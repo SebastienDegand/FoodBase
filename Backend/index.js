@@ -53,7 +53,7 @@ app.put("/api/v1/foods/:id", async function(req, res) {
     let entryDate = +new Date();
     let pricing = {};
     pricing.price = price;
-    pricing.store = store;
+    pricing.store = store.replace(/ /g, "-");
     pricing.entryDate = entryDate;
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
@@ -176,10 +176,10 @@ async function updateFood(db, id, pricing) {
       $set: {
         pricing: {
           price: pricing.price,
-          store: pricing.store,
           entryDate_t: pricing.entryDate
         }
-      }
+      },
+      $push: { stores_tags: pricing.store }
     }
   );
   const food = await collection.findOne({ _id: id });
