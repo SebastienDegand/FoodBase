@@ -7,8 +7,7 @@
     <v-data-table
       :headers="headers"
       :items="products"
-      :hide-actions="true"
-      :pagination.sync="paginationSync">
+      :hide-actions="true">
 
       <template slot="items" slot-scope="props">
         <tr @click="showAlert(props.item)">
@@ -17,7 +16,7 @@
       </template>
 
     </v-data-table>
-    <div class="text-xs-center pt-2">
+    <!-- <div class="text-xs-center pt-2">
       <v-pagination v-model="pagination.currentPage"
                     :length="pagination.totalPages"
                     @input="getProductsToShow">
@@ -28,7 +27,7 @@
           label="per page"
         ></v-select>
       </v-flex>
-    </div>
+    </div> -->
   </v-card>
 </template>
 
@@ -46,40 +45,53 @@
               }
             ],
             products: [],
-            pagination: {
-              currentPage: 1,
-              totalPages: 4,
-              possibleRowPerPage: [10, 20, 30]
-            },
-            paginationSync: {
-              rowsPerPage: 10
-            }
+            currentPage: 1,
+            rowsPerPage: 60,
+            loadingProduct: false
           }
         },
       mounted () {
-        this.getProducts();
+        this.InitProducts();
+        this.scroll();
       },
       methods: {
-          getProducts: function(page = 1, rowsPerPage = 10) {
-            console.log("hello"); /////////
-            console.log("current page: " + this.pagination.currentPage); //////////
-            console.log("rows per page: " + this.paginationSync.rowsPerPage); //////////
-            console.log("total pages: " + this.pagination.totalPages); //////////
-            fetch('http://localhost:8080/api/v1/foods?page=' + page + '&per_page=' + rowsPerPage).then((response) => {
+          InitProducts: function() {
+            this.loadingProduct = true;
+            this.currentPage = 1;
+            this.rowsPerPage = 60;
+            fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage).then((response) => {
               return response.json()
             }).then((data) => {
               //this.products = data.filter(product => product.product_name);
               this.products = data;
+              this.loadingProduct = false;
             })
           },
+        getNextProducts: function() {
+          this.loadingProduct = true;
+          this.currentPage++;
+          fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" + this.products[this.products.length-1].id).then((response) => {
+            return response.json()
+          }).then((data) => {
+            //this.products = data.filter(product => product.product_name);
+            this.products = this.products.concat(data);
+            this.loadingProduct = false;
+          })
+        },
           showAlert: function(item) {
             return alert(item.product_name)
+          },
+        scroll () {
+          window.onscroll = () => {
+            let bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight >= document.documentElement.offsetHeight * 0.8
+
+            if (bottomOfWindow && !this.loadingProduct) {
+              this.getNextProducts()
+            }
           }
+        }
       },
       computed: {
-          getProductsToShow () {
-            return this.getProducts(this.pagination.currentPage, this.paginationSync.rowsPerPage);
-      }
       }
     }
 </script>

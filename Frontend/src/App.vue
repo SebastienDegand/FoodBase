@@ -11,7 +11,6 @@
 <script>
 
 import ProductTab from "./ProductTab";
-import Test from "./Test";
 export default {
   name: 'app',
   data () {
@@ -20,7 +19,6 @@ export default {
     }
   },
 	components: {
-    Test,
     ProductTab
 	}
 }
