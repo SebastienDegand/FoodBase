@@ -10,7 +10,7 @@
     </v-toolbar-items>
   </v-toolbar>
   <h1 v-if="this.isProduct"><product-tab></product-tab></h1>
-  <h1 v-if="this.isRecip">Recette</h1>
+  <h1 v-if="this.isRecip"><recipe-tab></recipe-tab></h1>
   <h1 v-if="this.isMap">Carte</h1>
 </div>
 </template>
@@ -18,6 +18,7 @@
 <script>
 
 import ProductTab from "./ProductTab";
+import RecipeTab from "./RecipeTab";
 export default {
 
 
@@ -47,6 +48,7 @@ export default {
         }
     },
 	components: {
+    RecipeTab,
     ProductTab
 
 	}
