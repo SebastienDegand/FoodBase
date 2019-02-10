@@ -1,9 +1,19 @@
 <template>
   <div>
+    <v-dialog v-model="showDialog">
+      <v-card v-if="itemSelected">
+        <v-card-title>
+          <span class="headline">{{itemSelected.product_name}}</span>
+        </v-card-title>
+        <v-card-text>
+          fff
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+
   <v-card>
     <v-card-title>
-
-
 
       <v-autocomplete
         v-model="modelAlergenes"
@@ -159,7 +169,7 @@
       :hide-actions="true">
 
       <template slot="items" slot-scope="props">
-        <tr @click="showAlert(props.item)">
+        <tr @click="showDialog = true; itemSelected = props.item">
         <td>{{ props.item.product_name }}</td>
         </tr>
       </template>
@@ -202,7 +212,10 @@
             radioModelAdditives: false,
 
             filters: ["price", "nutrition value"],
-            filterModel: null
+            filterModel: null,
+
+            showDialog: false,
+            itemSelected: null
           }
         },
       mounted () {
@@ -264,6 +277,9 @@
         }
       },
       computed: {
+      },
+      beforeDestroy () {
+          window.onscroll = null;
       }
     }
 </script>
