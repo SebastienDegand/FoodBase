@@ -17,7 +17,7 @@
 
 <script>
 
-import ProductTab from "../ProductTab";
+import ProductTab from "./ProductTab";
 export default {
 
 

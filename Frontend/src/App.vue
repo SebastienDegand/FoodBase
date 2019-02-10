@@ -9,7 +9,7 @@
 
 <script>
 
-import ProductTab from "./ProductTab";
+import ProductTab from "./components/ProductTab";
 export default {
   name: 'app',
   data () {
