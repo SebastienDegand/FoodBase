@@ -32,11 +32,12 @@ app.get("/api/v1/foods", async function(req, res) {
     config.lastid = req.query.lastid;
     config.allergen =
       req.query.allergen === undefined || req.query.name === ""
-        ? ""
+        ? [""]
         : req.query.allergen.split("+").map(val => {
             return "en:" + val;
           });
     config.additive = req.query.additive;
+    config.shop = req.query.shop;
 
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
