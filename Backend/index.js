@@ -169,9 +169,12 @@ async function findFoods(db, config) {
   if (config.lastid) {
     result = await collection
       .find({
-        _id: { $gt: config.lastid },
-        product_name: { $ne: null },
-        product_name: new RegExp(config.product_name)
+        $and: [
+          { _id: { $gt: config.lastid } },
+          { product_name: { $ne: null } },
+          { product_name: new RegExp(config.product_name) },
+          { allergens_tags: { $nin: config.allergen } }
+        ]
       })
       .sort({ [config.sorting.sorted_by]: config.sorting.order })
       .limit(config.pagination.limit)
