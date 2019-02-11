@@ -44,7 +44,7 @@ app.get("/api/v1/foods", async function(req, res) {
           });
     config.shop =
       req.query.shop === undefined || req.query.shop === ""
-        ? [""]
+        ? undefined
         : req.query.shop.split("+");
 
     const client = await new MongoClient(url, { useNewUrlParser: true });
@@ -182,28 +182,43 @@ async function findFoods(db, config) {
           { product_name: { $ne: null } },
           { product_name: new RegExp(config.product_name) },
           { allergens_tags: { $nin: config.allergen } },
-          { additives_tags: { $nin: config.additive } },
-          { stores_tags: { $in: config.shop } }
+          { additives_tags: { $nin: config.additive } }
         ]
       })
       .sort({ [config.sorting.sorted_by]: config.sorting.order })
       .limit(config.pagination.limit)
       .toArray();
   } else {
-    result = await collection
-      .find({
-        $and: [
-          { product_name: { $ne: null } },
-          { product_name: new RegExp(config.product_name) },
-          { allergens_tags: { $nin: config.allergen } },
-          { additives_tags: { $nin: config.additive } },
-          { stores_tags: { $in: config.shop } }
-        ]
-      })
-      .sort({ [config.sorting.sorted_by]: config.sorting.order })
-      .limit(config.pagination.limit)
-      .skip(config.pagination.skip)
-      .toArray();
+    if (config.shop) {
+      result = await collection
+        .find({
+          $and: [
+            { product_name: { $ne: null } },
+            { product_name: new RegExp(config.product_name) },
+            { allergens_tags: { $nin: config.allergen } },
+            { additives_tags: { $nin: config.additive } },
+            { stores_tags: { $in: config.shop } }
+          ]
+        })
+        .sort({ [config.sorting.sorted_by]: config.sorting.order })
+        .limit(config.pagination.limit)
+        .skip(config.pagination.skip)
+        .toArray();
+    } else {
+      result = await collection
+        .find({
+          $and: [
+            { product_name: { $ne: null } },
+            { product_name: new RegExp(config.product_name) },
+            { allergens_tags: { $nin: config.allergen } },
+            { additives_tags: { $nin: config.additive } }
+          ]
+        })
+        .sort({ [config.sorting.sorted_by]: config.sorting.order })
+        .limit(config.pagination.limit)
+        .skip(config.pagination.skip)
+        .toArray();
+    }
   }
   console.log("foods found");
   return result;
