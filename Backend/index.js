@@ -30,7 +30,12 @@ app.get("/api/v1/foods", async function(req, res) {
         ? ""
         : req.query.name;
     config.lastid = req.query.lastid;
-    config.allergen = req.query.allergen;
+    config.allergen =
+      req.query.allergen === undefined || req.query.name === ""
+        ? ""
+        : req.query.allergen.split("+").map(val => {
+            return "en:" + val;
+          });
     config.additive = req.query.additive;
 
     const client = await new MongoClient(url, { useNewUrlParser: true });
@@ -164,10 +169,8 @@ async function findFoods(db, config) {
     result = await collection
       .find({
         _id: { $gt: config.lastid },
-        $and: [
-          { product_name: { $ne: null } },
-          { product_name: new RegExp(config.product_name) }
-        ]
+        product_name: { $ne: null },
+        product_name: new RegExp(config.product_name)
       })
       .sort({ [config.sorting.sorted_by]: config.sorting.order })
       .limit(config.pagination.limit)
@@ -177,7 +180,8 @@ async function findFoods(db, config) {
       .find({
         $and: [
           { product_name: { $ne: null } },
-          { product_name: new RegExp(config.product_name) }
+          { product_name: new RegExp(config.product_name) },
+          { allergens_tags: { $nin: config.allergen } }
         ]
       })
       .sort({ [config.sorting.sorted_by]: config.sorting.order })
