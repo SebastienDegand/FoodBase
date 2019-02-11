@@ -23,11 +23,12 @@ app.use(function(req, res, next) {
 app.get("/api/v1/foods", async function(req, res) {
   try {
     let pagination = getPagination(req);
+    let sorting = getSorting(req);
 
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
     const db = await client.db("foodbasedb");
-    let foods = await findFoods(db, pagination, req.query.lastid);
+    let foods = await findFoods(db, pagination, req.query.lastid, sorting);
     res.send(foods);
   } catch (error) {
     console.log(error);
@@ -147,9 +148,23 @@ app.listen(port, () => {
   console.log("listening on " + port);
 });
 
-async function findFoods(db, pagination, lastid) {
+async function findFoods(db, pagination, lastid, sorting) {
   const collection = await db.collection("france");
-  let result = await findDocuments(collection, pagination, lastid);
+  let result;
+  if (lastid) {
+    result = await collection
+      .find({ _id: { $gt: lastid }, product_name: { $ne: null } })
+      .sort({ [sorting.sorted_by]: sorting.order })
+      .limit(pagination.limit)
+      .toArray();
+  } else {
+    result = await collection
+      .find({ product_name: { $ne: null } })
+      .sort({ [sorting.sorted_by]: sorting.order })
+      .limit(pagination.limit)
+      .skip(pagination.skip)
+      .toArray();
+  }
   console.log("foods found");
   return result;
 }
@@ -201,7 +216,19 @@ async function addRecipe(db, name, author, ingredients) {
 
 async function getRecipes(db, pagination, lastid) {
   const collection = await db.collection("recipe");
-  let result = await findDocuments(collection, pagination, lastid);
+  let result;
+  if (lastid) {
+    result = await collection
+      .find({ _id: { $gt: lastid } })
+      .limit(pagination.limit)
+      .toArray();
+  } else {
+    result = await collection
+      .find({})
+      .limit(pagination.limit)
+      .skip(pagination.skip)
+      .toArray();
+  }
   console.log("recipes found");
   return result;
 }
@@ -238,23 +265,6 @@ async function getComments(db, pagination, lastid, recipeId) {
   return result;
 }
 
-async function findDocuments(collection, pagination, lastid) {
-  let result;
-  if (lastid) {
-    result = await collection
-      .find({ _id: { $gt: lastid } })
-      .limit(pagination.limit)
-      .toArray();
-  } else {
-    result = await collection
-      .find({})
-      .limit(pagination.limit)
-      .skip(pagination.skip)
-      .toArray();
-  }
-  return result;
-}
-
 function getPagination(req) {
   let page =
     req.query.page === undefined || req.query.page === "" || req.query.page <= 0
@@ -271,4 +281,19 @@ function getPagination(req) {
   pagination.skip = per_page * (page - 1);
   pagination.limit = parseInt(per_page);
   return pagination;
+}
+
+function getSorting(req) {
+  let sorting = {};
+  sorting.sorted_by =
+    req.query.sorted_by === undefined || req.query.sorted_by === ""
+      ? "_id"
+      : req.query.sorted_by;
+  sorting.order =
+    req.query.order === undefined ||
+    req.query.order === "" ||
+    req.query.order === "increasing"
+      ? 1
+      : 0;
+  return sorting;
 }
