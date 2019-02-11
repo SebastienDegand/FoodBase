@@ -22,13 +22,22 @@ app.use(function(req, res, next) {
 
 app.get("/api/v1/foods", async function(req, res) {
   try {
-    let pagination = getPagination(req);
-    let sorting = getSorting(req);
+    let config = {};
+    config.pagination = getPagination(req);
+    config.sorting = getSorting(req);
+    config.product_name =
+      req.query.name === undefined || req.query.name === ""
+        ? ""
+        : req.query.name;
+    config.lastid = req.query.lastid;
+    config.allergen = req.query.allergen;
+    config.additive = req.query.additive;
 
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
     const db = await client.db("foodbasedb");
-    let foods = await findFoods(db, pagination, req.query.lastid, sorting);
+
+    let foods = await findFoods(db, config);
     res.send(foods);
   } catch (error) {
     console.log(error);
@@ -148,21 +157,32 @@ app.listen(port, () => {
   console.log("listening on " + port);
 });
 
-async function findFoods(db, pagination, lastid, sorting) {
+async function findFoods(db, config) {
   const collection = await db.collection("france");
   let result;
-  if (lastid) {
+  if (config.lastid) {
     result = await collection
-      .find({ _id: { $gt: lastid }, product_name: { $ne: null } })
-      .sort({ [sorting.sorted_by]: sorting.order })
-      .limit(pagination.limit)
+      .find({
+        _id: { $gt: config.lastid },
+        $and: [
+          { product_name: { $ne: null } },
+          { product_name: new RegExp(config.product_name) }
+        ]
+      })
+      .sort({ [config.sorting.sorted_by]: config.sorting.order })
+      .limit(config.pagination.limit)
       .toArray();
   } else {
     result = await collection
-      .find({ product_name: { $ne: null } })
-      .sort({ [sorting.sorted_by]: sorting.order })
-      .limit(pagination.limit)
-      .skip(pagination.skip)
+      .find({
+        $and: [
+          { product_name: { $ne: null } },
+          { product_name: new RegExp(config.product_name) }
+        ]
+      })
+      .sort({ [config.sorting.sorted_by]: config.sorting.order })
+      .limit(config.pagination.limit)
+      .skip(config.pagination.skip)
       .toArray();
   }
   console.log("foods found");
