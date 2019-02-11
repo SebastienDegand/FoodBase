@@ -9,19 +9,21 @@
       <v-btn @click="mapClick()" flat>Carte</v-btn>
     </v-toolbar-items>
   </v-toolbar>
-  <h1 v-if="this.isProduct">Produits</h1>
-  <h1 v-if="this.isRecip">Recette</h1>
+  <h1 v-if="this.isProduct"><product-tab></product-tab></h1>
+  <h1 v-if="this.isRecip"><recipe-tab></recipe-tab></h1>
   <h1 v-if="this.isMap">Carte</h1>
 </div>
 </template>
 
 <script>
 
+import ProductTab from "./ProductTab";
+import RecipeTab from "./RecipeTab";
 export default {
-    
+
 
 	data() {
-      
+
 		return {
 			isProduct : true,
             isRecip : false,
@@ -40,13 +42,15 @@ export default {
         },
         mapClick: function () {
             this.isProduct = false
-            
+
             this.isRecip = false
             this.isMap = true
         }
     },
-	components: { 				
-		
+	components: {
+    RecipeTab,
+    ProductTab
+
 	}
 }
 </script>

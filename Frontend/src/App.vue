@@ -1,16 +1,15 @@
 
 <template>
   <div id="app">
-    <navigation></navigation>
     <v-app>
-    <product-tab></product-tab>
+    <navigation></navigation>
     </v-app>
   </div>
 </template>
 
 <script>
 
-import ProductTab from "./ProductTab";
+import ProductTab from "./components/ProductTab";
 export default {
   name: 'app',
   data () {
