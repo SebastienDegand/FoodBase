@@ -294,6 +294,6 @@ function getSorting(req) {
     req.query.order === "" ||
     req.query.order === "increasing"
       ? 1
-      : 0;
+      : -1;
   return sorting;
 }
