@@ -31,7 +31,6 @@ app.get("/api/v1/foods", async function(req, res) {
       req.query.name === undefined || req.query.name === ""
         ? ""
         : req.query.name;
-    config.lastid = req.query.lastid;
     config.allergen =
       req.query.allergen === undefined || req.query.allergen === ""
         ? [""]
