@@ -33,19 +33,23 @@ app.get("/api/v1/foods", async function(req, res) {
     config.allergen =
       req.query.allergen === undefined || req.query.allergen === ""
         ? [""]
-        : req.query.allergen.split("+").map(val => {
+        : req.query.allergen === "none"
+        ? ["none"]
+        : req.query.allergen.split(" ").map(val => {
             return "en:" + val;
           });
     config.additive =
       req.query.additive === undefined || req.query.additive === ""
         ? [""]
-        : req.query.additive.split("+").map(val => {
+        : req.query.additive === "none"
+        ? ["none"]
+        : req.query.additive.split(" ").map(val => {
             return "en:" + val;
           });
     config.shop =
       req.query.shop === undefined || req.query.shop === ""
         ? undefined
-        : req.query.shop.split("+");
+        : req.query.shop.split(" ");
 
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();
@@ -173,53 +177,38 @@ app.listen(port, () => {
 
 async function findFoods(db, config) {
   const collection = await db.collection("france");
-  let result;
-  if (config.lastid) {
-    result = await collection
-      .find({
-        $and: [
-          { _id: { $gt: config.lastid } },
-          { product_name: { $ne: null } },
-          { product_name: new RegExp(config.product_name) },
-          { allergens_tags: { $nin: config.allergen } },
-          { additives_tags: { $nin: config.additive } }
-        ]
-      })
-      .sort({ [config.sorting.sorted_by]: config.sorting.order })
-      .limit(config.pagination.limit)
-      .toArray();
-  } else {
-    if (config.shop) {
-      result = await collection
-        .find({
-          $and: [
-            { product_name: { $ne: null } },
-            { product_name: new RegExp(config.product_name) },
-            { allergens_tags: { $nin: config.allergen } },
-            { additives_tags: { $nin: config.additive } },
-            { stores_tags: { $in: config.shop } }
-          ]
-        })
-        .sort({ [config.sorting.sorted_by]: config.sorting.order })
-        .limit(config.pagination.limit)
-        .skip(config.pagination.skip)
-        .toArray();
-    } else {
-      result = await collection
-        .find({
-          $and: [
-            { product_name: { $ne: null } },
-            { product_name: new RegExp(config.product_name) },
-            { allergens_tags: { $nin: config.allergen } },
-            { additives_tags: { $nin: config.additive } }
-          ]
-        })
-        .sort({ [config.sorting.sorted_by]: config.sorting.order })
-        .limit(config.pagination.limit)
-        .skip(config.pagination.skip)
-        .toArray();
-    }
-  }
+  let result = [];
+  await collection
+    .find({
+      $and: [
+        { product_name: { $ne: null } },
+        { product_name: new RegExp(config.product_name) },
+        { allergens_tags: { $nin: config.allergen } },
+        { additives_tags: { $nin: config.additive } }
+      ]
+    })
+    .sort({ [config.sorting.sorted_by]: config.sorting.order })
+    .limit(config.pagination.limit)
+    .skip(config.pagination.skip)
+    .forEach(async doc => {
+      if (config.shop) {
+        if (!doc.stores_tags) {
+          return;
+        }
+        for (let s of config.shop) {
+          if (!doc.stores_tags.includes(s)) {
+            return;
+          }
+        }
+      }
+      if (config.allergen[0] === "none" && doc.allergens_tags.length != 0) {
+        return;
+      }
+      if (config.additive[0] === "none" && doc.additives_tags.length != 0) {
+        return;
+      }
+      result.push(doc);
+    });
   console.log("foods found");
   return result;
 }
