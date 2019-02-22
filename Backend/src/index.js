@@ -96,7 +96,8 @@ app.post("/api/v1/recipes", async function(req, res) {
       db,
       req.body.name,
       req.body.author,
-      req.body.ingredients
+      req.body.ingredients,
+      req.body.image_link
     );
     res.send(result);
     console.log("recipe added");
@@ -109,7 +110,7 @@ app.get("/api/v1/recipes", async function(req, res) {
   try {
     console.log("get recipes");
     let pagination = getPagination(req);
-    const result = await utils.getRecipes(db, pagination, req.query.lastid);
+    const result = await utils.getRecipes(db, pagination);
     res.send(result);
     console.log("recipes found");
   } catch (error) {
@@ -149,12 +150,7 @@ app.get("/api/v1/recipes/:id/comments", async function(req, res) {
   try {
     console.log("get comments");
     let pagination = getPagination(req);
-    const result = await utils.getComments(
-      db,
-      pagination,
-      req.query.lastid,
-      req.params.id
-    );
+    const result = await utils.getComments(db, pagination, req.params.id);
     res.send(result);
     console.log("comments found");
   } catch (error) {

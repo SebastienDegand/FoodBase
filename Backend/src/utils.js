@@ -67,31 +67,34 @@ async function updateFood(db, id, pricing) {
   return food;
 }
 
-async function addRecipe(db, name, author, ingredients) {
+async function addRecipe(db, name, author, ingredients, image_link) {
   const collection = await db.collection("recipe");
   const result = await collection.insertOne({
     name: name,
     author: author,
     ingredients: ingredients,
+    image_link: image_link,
     createTime: new Date().toISOString()
   });
   return result.ops[0];
 }
 
-async function getRecipes(db, pagination, lastid) {
-  const collection = await db.collection("recipe");
-  let result;
-  if (lastid) {
-    result = await collection
-      .find({ _id: { $gt: lastid } })
-      .limit(pagination.limit)
+async function getRecipes(db, pagination) {
+  const recipeCollection = await db.collection("recipe");
+  const commentCollection = await db.collection("comment");
+  let result = await recipeCollection
+    .find({})
+    .limit(pagination.limit)
+    .skip(pagination.skip)
+    .toArray();
+  for (let doc of result) {
+    let avgNote = await commentCollection
+      .aggregate([
+        { $match: { recipeId: ObjectId(doc._id) } },
+        { $group: { _id: doc._id, note: { $avg: "$note" } } }
+      ])
       .toArray();
-  } else {
-    result = await collection
-      .find({})
-      .limit(pagination.limit)
-      .skip(pagination.skip)
-      .toArray();
+    doc.note = avgNote[0] ? avgNote[0].note : 0;
   }
   return result;
 }
@@ -108,21 +111,14 @@ async function addComment(db, note, author, comment, recipeId) {
   return result.ops[0];
 }
 
-async function getComments(db, pagination, lastid, recipeId) {
+async function getComments(db, pagination, recipeId) {
   const collection = await db.collection("comment");
   let result;
-  if (lastid) {
-    result = await collection
-      .find({ recipeId: ObjectId(recipeId), _id: { $gt: lastid } })
-      .limit(pagination.limit)
-      .toArray();
-  } else {
-    result = await collection
-      .find({ recipeId: ObjectId(recipeId) })
-      .limit(pagination.limit)
-      .skip(pagination.skip)
-      .toArray();
-  }
+  result = await collection
+    .find({ recipeId: ObjectId(recipeId) })
+    .limit(pagination.limit)
+    .skip(pagination.skip)
+    .toArray();
   return result;
 }
 

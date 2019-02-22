@@ -240,6 +240,9 @@
           Promise.all(promises).then(() => {
             fetch('http://localhost:8080/api/v1/recipes', {
               method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
               body: JSON.stringify({
                 ingredients: ingredientsFound,
                 name: this.nameRecipeField,

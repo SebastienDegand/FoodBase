@@ -170,15 +170,20 @@ describe("Utils test", function() {
 
   describe("recipe", function() {
     afterEach(async function() {
-      const collection = await db.collection("recipe");
-      await collection.drop();
+      try {
+        await db.collection("recipe").drop();
+        await db.collection("comment").drop();
+      } catch (error) {}
     });
 
     it("add recipe", async function() {
-      let recipe = await utils.addRecipe(db, "recipeA", "authorA", [
-        "milk",
-        "egg"
-      ]);
+      let recipe = await utils.addRecipe(
+        db,
+        "recipeA",
+        "authorA",
+        ["milk", "egg"],
+        "link"
+      );
       assert.strictEqual(recipe.name, "recipeA");
       assert.strictEqual(recipe.author, "authorA");
       assert.strictEqual(recipe.ingredients.length, 2);
@@ -188,7 +193,13 @@ describe("Utils test", function() {
 
     it("get recipes with 2 items per page", async function() {
       for (let i = 0; i < 5; i++) {
-        await utils.addRecipe(db, "recipeA", "authorA", ["milk", "egg"]);
+        await utils.addRecipe(
+          db,
+          "recipeA",
+          "authorA",
+          ["milk", "egg"],
+          "link"
+        );
       }
       let per_page = 2;
       let page = 1;
@@ -196,13 +207,19 @@ describe("Utils test", function() {
       pagination.skip = per_page * (page - 1);
       pagination.limit = per_page;
 
-      let recipes = await utils.getRecipes(db, pagination, undefined);
+      let recipes = await utils.getRecipes(db, pagination);
       assert.strictEqual(recipes.length, 2);
     });
 
     it("get different page recipes", async function() {
       for (let i = 0; i < 5; i++) {
-        await utils.addRecipe(db, "recipeA", "authorA", ["milk", "egg"]);
+        await utils.addRecipe(
+          db,
+          "recipeA",
+          "authorA",
+          ["milk", "egg"],
+          "link"
+        );
       }
 
       let per_page = 2;
@@ -215,21 +232,45 @@ describe("Utils test", function() {
       pagination2.skip = per_page * (page2 - 1);
       pagination2.limit = per_page;
 
-      let recipes1 = await utils.getRecipes(db, pagination, undefined);
-      let recipes2 = await utils.getRecipes(db, pagination2, undefined);
+      let recipes1 = await utils.getRecipes(db, pagination);
+      let recipes2 = await utils.getRecipes(db, pagination2);
       assert.strictEqual(recipes1[0]._id.equals(recipes2[0]._id), false);
     });
 
     it("get recipes by id", async function() {
       let recipe = undefined;
       for (let i = 0; i < 5; i++) {
-        recipe = await utils.addRecipe(db, "recipeA", "authorA", [
-          "milk",
-          "egg"
-        ]);
+        recipe = await utils.addRecipe(
+          db,
+          "recipeA",
+          "authorA",
+          ["milk", "egg"],
+          "link"
+        );
       }
       let res = await utils.findRecipeById(db, recipe._id);
       assert.strictEqual(res._id.equals(recipe._id), true);
+    });
+
+    it("get recipe note", async function() {
+      let recipe = await utils.addRecipe(
+        db,
+        "recipeA",
+        "authorA",
+        ["milk", "egg"],
+        "link"
+      );
+      let per_page = 1;
+      let page = 1;
+      let pagination = {};
+      pagination.skip = per_page * (page - 1);
+      pagination.limit = per_page;
+      await utils.addComment(db, 5, "authorA", "commentA", recipe._id);
+      let recipes = await utils.getRecipes(db, pagination);
+      assert.strictEqual(recipes[0].note, 5);
+      await utils.addComment(db, 0, "authorA", "commentA", recipe._id);
+      recipes = await utils.getRecipes(db, pagination);
+      assert.strictEqual(recipes[0].note, 2.5);
     });
   });
 
@@ -237,21 +278,22 @@ describe("Utils test", function() {
     let id = undefined;
 
     before(async function() {
-      let recipe = await utils.addRecipe(db, "recipeA", "authorA", [
-        "milk",
-        "egg"
-      ]);
+      let recipe = await utils.addRecipe(
+        db,
+        "recipeA",
+        "authorA",
+        ["milk", "egg"],
+        "link"
+      );
       id = recipe._id;
     });
 
     afterEach(async function() {
-      const collection = await db.collection("comment");
-      await collection.drop();
+      await db.collection("comment").drop();
     });
 
     after(async function() {
-      const collection = await db.collection("recipe");
-      await collection.drop();
+      await db.collection("recipe").drop();
     });
 
     it("add comment", async function() {
@@ -272,7 +314,7 @@ describe("Utils test", function() {
       pagination.skip = per_page * (page - 1);
       pagination.limit = per_page;
 
-      let comments = await utils.getComments(db, pagination, undefined, id);
+      let comments = await utils.getComments(db, pagination, id);
       assert.strictEqual(comments.length, 2);
     });
 
@@ -291,8 +333,8 @@ describe("Utils test", function() {
       pagination2.skip = per_page * (page2 - 1);
       pagination2.limit = per_page;
 
-      let recipes1 = await utils.getComments(db, pagination, undefined, id);
-      let recipes2 = await utils.getComments(db, pagination2, undefined, id);
+      let recipes1 = await utils.getComments(db, pagination, id);
+      let recipes2 = await utils.getComments(db, pagination2, id);
       assert.strictEqual(recipes1[0]._id.equals(recipes2[0]._id), false);
     });
   });
