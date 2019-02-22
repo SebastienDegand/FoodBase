@@ -11,7 +11,7 @@
   </v-toolbar>
   <h1 v-if="this.isProduct"><product-tab></product-tab></h1>
   <h1 v-if="this.isRecip"><recipe-tab></recipe-tab></h1>
-  <h1 v-if="this.isMap">Carte</h1>
+  <h1 v-if="this.isMap"><GoogleMap></GoogleMap></h1>
 </div>
 </template>
 
@@ -19,6 +19,7 @@
 
 import ProductTab from "./ProductTab";
 import RecipeTab from "./RecipeTab";
+import GoogleMap from "./GoogleMap"; 
 export default {
 
 
@@ -49,8 +50,8 @@ export default {
     },
 	components: {
     RecipeTab,
-    ProductTab
-
+    ProductTab,
+    GoogleMap
 	}
 }
 </script>
