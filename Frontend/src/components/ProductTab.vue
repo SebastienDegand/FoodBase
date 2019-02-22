@@ -6,286 +6,410 @@
           <span class="headline">{{itemSelected.product_name}}</span>
         </v-card-title>
         <v-card-text>
-          fff
+          <div style="text-align: left" v-for="ingredient in itemSelected.ingredients"> {{ingredient.text}}</div>
         </v-card-text>
       </v-card>
     </v-dialog>
 
 
-  <v-card>
-    <v-card-title>
+    <v-card>
+      <v-card-title>
 
-      <v-autocomplete
-        v-model="modelAlergenes"
-        :items="alergenes"
-        box
-        chips
-        color="blue-grey lighten-2"
-        label="Search without alergenes"
-        item-text="name"
-        item-value="name"
-        multiple
-        :disabled="radioModelAlergenes"
-      >
-        <template
-          slot="selection"
-          slot-scope="data"
+        <v-autocomplete
+          v-model="modelAlergenes"
+          :items="alergenes"
+          box
+          chips
+          color="blue-grey lighten-2"
+          label="Search without alergenes"
+          item-text="name"
+          item-value="name"
+          multiple
+          :disabled="radioModelAlergenes"
         >
-          <v-chip
-            :selected="data.selected"
-            close
-            class="chip--select-multi"
-            @input="removeAlergene(data.item)"
+          <template
+            slot="selection"
+            slot-scope="data"
           >
-            {{ data.item }}
-          </v-chip>
-        </template>
-        <template
-          slot="item"
-          slot-scope="data"
-        >
-          <template>
-            <v-list-tile-content v-text="data.item"></v-list-tile-content>
+            <v-chip
+              :selected="data.selected"
+              close
+              class="chip--select-multi"
+              @input="removeAlergene(data.item)"
+            >
+              {{ data.item }}
+            </v-chip>
           </template>
-        </template>
-      </v-autocomplete>
-
-      <v-radio-group v-model="radioModelAlergenes">
-        <v-radio
-          :key="0"
-          :label="`some`"
-          :value="false"
-        ></v-radio>
-        <v-radio
-          :key="1"
-          :label="`any`"
-          :value="true"
-        ></v-radio>
-      </v-radio-group>
-
-      <v-spacer></v-spacer>
-
-      <v-autocomplete
-        v-model="modelShop"
-        :items="shops"
-        box
-        chips
-        color="blue-grey lighten-2"
-        label="Select shops"
-        item-text="name"
-        item-value="name"
-        multiple
-      >
-        <template
-          slot="selection"
-          slot-scope="data"
-        >
-          <v-chip
-            :selected="data.selected"
-            close
-            class="chip--select-multi"
-            @input="removeShop(data.item)"
+          <template
+            slot="item"
+            slot-scope="data"
           >
-            {{ data.item }}
-          </v-chip>
-        </template>
-        <template
-          slot="item"
-          slot-scope="data"
-        >
-          <template>
-            <v-list-tile-content v-text="data.item"></v-list-tile-content>
+            <template>
+              <v-list-tile-content v-text="data.item"></v-list-tile-content>
+            </template>
           </template>
-        </template>
-      </v-autocomplete>
+        </v-autocomplete>
 
-      <v-spacer></v-spacer>
+        <v-radio-group v-model="radioModelAlergenes">
+          <v-radio
+            :key="0"
+            :label="`some`"
+            :value="false"
+          ></v-radio>
+          <v-radio
+            :key="1"
+            :label="`any`"
+            :value="true"
+          ></v-radio>
+        </v-radio-group>
 
-      <v-autocomplete
-        v-model="modelAdditives"
-        :items="additives"
-        box
-        chips
-        color="blue-grey lighten-2"
-        label="Search without additives"
-        item-text="name"
-        item-value="name"
-        multiple
-        :disabled="radioModelAdditives"
-      >
-        <template
-          slot="selection"
-          slot-scope="data"
-        >
-          <v-chip
-            :selected="data.selected"
-            close
-            class="chip--select-multi"
-            @input="removeAdditive(data.item)"
-          >
-            {{ data.item }}
-          </v-chip>
-        </template>
-        <template
-          slot="item"
-          slot-scope="data"
-        >
-          <template>
-            <v-list-tile-content v-text="data.item"></v-list-tile-content>
-          </template>
-        </template>
-      </v-autocomplete>
-
-      <v-radio-group v-model="radioModelAdditives">
-        <v-radio
-          :key="0"
-          :label="`some`"
-          :value="false"
-        ></v-radio>
-        <v-radio
-          :key="1"
-          :label="`any`"
-          :value="true"
-        ></v-radio>
-      </v-radio-group>
-
-    </v-card-title>
-
-    <v-card-title>
-      <v-flex xs12 sm6 d-flex>
-        <v-select
-          v-model="filterModel"
-          :items="filters"
-          label="Filter By"
-          outline
-        ></v-select>
         <v-spacer></v-spacer>
-        <v-btn color="blue" dark large>Search</v-btn>
-      </v-flex>
-    </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="products"
-      :hide-actions="true">
 
-      <template slot="items" slot-scope="props">
-        <tr @click="showDialog = true; itemSelected = props.item">
-        <td>{{ props.item.product_name }}</td>
+        <v-autocomplete
+          v-model="modelShop"
+          :items="shops"
+          box
+          chips
+          color="blue-grey lighten-2"
+          label="Select shops"
+          item-text="name"
+          item-value="name"
+          multiple
+        >
+          <template
+            slot="selection"
+            slot-scope="data"
+          >
+            <v-chip
+              :selected="data.selected"
+              close
+              class="chip--select-multi"
+              @input="removeShop(data.item)"
+            >
+              {{ data.item }}
+            </v-chip>
+          </template>
+          <template
+            slot="item"
+            slot-scope="data"
+          >
+            <template>
+              <v-list-tile-content v-text="data.item"></v-list-tile-content>
+            </template>
+          </template>
+        </v-autocomplete>
+
+        <v-spacer></v-spacer>
+
+        <v-autocomplete
+          v-model="modelAdditives"
+          :items="additives"
+          box
+          chips
+          color="blue-grey lighten-2"
+          label="Search without additives"
+          item-text="name"
+          item-value="name"
+          multiple
+          :disabled="radioModelAdditives"
+        >
+          <template
+            slot="selection"
+            slot-scope="data"
+          >
+            <v-chip
+              :selected="data.selected"
+              close
+              class="chip--select-multi"
+              @input="removeAdditive(data.item)"
+            >
+              {{ data.item }}
+            </v-chip>
+          </template>
+          <template
+            slot="item"
+            slot-scope="data"
+          >
+            <template>
+              <v-list-tile-content v-text="data.item"></v-list-tile-content>
+            </template>
+          </template>
+        </v-autocomplete>
+
+        <v-radio-group v-model="radioModelAdditives">
+          <v-radio
+            :key="0"
+            :label="`some`"
+            :value="false"
+          ></v-radio>
+          <v-radio
+            :key="1"
+            :label="`any`"
+            :value="true"
+          ></v-radio>
+        </v-radio-group>
+
+      </v-card-title>
+
+      <v-card-title>
+        <v-flex xs12 sm6 d-flex>
+          <v-text-field
+            v-model="searchField"
+            label="Name of the product"
+          ></v-text-field>
+          <v-spacer></v-spacer>
+          <v-btn color="blue" dark large @click="searchProducts()">Search</v-btn>
+        </v-flex>
+      </v-card-title>
+      <v-card-title>
+      <v-checkbox v-for="header in headers"
+                  v-model="header.enabled"
+                  :label="header.name"
+      ></v-checkbox>
+      </v-card-title>
+
+      <div class="container-table">
+      <table id="myHeader" style="table-layout: fixed; background-color: white; font-size: 15px; border-bottom: 2px solid #1c85ff;">
+        <div style="width: 100%">
+        <tr>
+          <th class="product-name-row">Product name</th>
+          <th @click="selectFilterColumn(header.name)" style="cursor: ns-resize" class="nutriment-row" v-for="header in headers" v-if="header.enabled">{{header.name}} <b>{{getArrow(header)}}</b></th>
         </tr>
-      </template>
+        </div>
+      </table>
+      <table width="100%" style="font-size: 11px">
+        <tbody>
+        <div v-for="product in products" id="row-wrapper" @click="showDialog = true; itemSelected = product">
+          <tr>
+            <td class="product-name-row" style="font-size: 16px">{{ product.product_name }}</td>
 
-    </v-data-table>
-  </v-card>
+            <td class="text-xs-right nutriment-row" v-for="header in headers" v-if="header.enabled && product[header.id.split('.')[0]]&& product[header.id.split('.')[0]][header.id.split('.')[1]]">{{
+              product[header.id.split('.')[0]][header.id.split('.')[1]].toString().substring(0,5) }}
+            </td>
+            <td class="text-xs-right nutriment-row" v-else-if="header.enabled">?</td>
+          </tr>
+          <hr>
+        </div>
+        </tbody>
+      </table>
+      </div>
+
+    </v-card>
   </div>
 </template>
 
 <script>
-    export default {
-        name: "ProductTab",
-        data () {
-          return {
-            products: [],
-            headers: [
-              {
-                text: 'Product name',
-                align: 'left',
-                sortable: false,
-                value: 'product_name'
-              }
-            ],
-            currentPage: 1,
-            rowsPerPage: 60,
-            loadingProduct: false,
-            isLoading: false,
+  export default {
+    name: "ProductTab",
+    data() {
+      return {
+        products: [],
+        headers: [{name: 'Sugar (100g)', enabled: false, filter: 0, id: 'nutriments.sugars_100g'},
+          {name: 'Salt (100g)', enabled: false, filter: 0, id: 'nutriments.salt_100g '},
+          {name: 'Sodium (100g)', enabled: false, filter: 0, id: 'nutriments.sodium_100g'},
+          {name: 'Fiber (100g)', enabled: false, filter: 0, id: 'nutriments.fiber_100g'},
+          {name: 'Carbohydrates (100g)', enabled: false, filter: 0, id: 'nutriments.carbohydrates_100g'},
+          {name: 'Fat (100g)', enabled: false, filter: 0, id: 'product.nutriments.fat_100g'},
+          {name: 'Alcohol (100g)', enabled: false, filter: 0, id: 'nutriments.alcohol_100g'},
+          {name: 'Energy (100g)', enabled: false, filter: 0, id: 'nutriments.energy_100g'},
+          {name: 'Proteins (100g)', enabled: false, filter: 0, id: 'nutriments.proteins_100g'},
+          {name: 'Score', enabled: true, filter: 0, id: 'scoring.score'},
+          {name: 'Price', enabled: true, filter: 0, id: 'pricing.price'}
+          ],
+        //h: [{name: 'Sugar (100g)', enabled: true}, {name: 'Salt (100g)', enabled: true}, {name: 'Sodium (100g)', enabled: true}, {name: 'Fiber (100g)', enabled: true}, {name: 'Carbohydrates (100g)', enabled: true}, {name: 'Fat (100g)', enabled: true}, {name: 'Alcohol (100g)', enabled: true}, {name: 'Energy (100g)', enabled: true}, {name: 'Proteins (100g)', enabled: false}, {name: 'Score', enabled: false}, {name: 'Price', enabled: true}],
+        currentPage: 1,
+        rowsPerPage: 60,
+        loadingProduct: false,
+
+        searchCriteriaAPIParam: "",
 
 
-            alergenes: ["milk", "egg", "egg", "a", "b", "c", "d", "e"],
-            modelAlergenes: null,
-            radioModelAlergenes: false,
+        alergenes: ["milk", "egg", "egg", "nuts", "b", "c", "d", "e"],
+        modelAlergenes: [],
+        radioModelAlergenes: false,
 
-            shops: ["carrefour", "auchan"],
-            modelShop: null,
-            radioModelShops: false,
+        shops: ["carrefour", "auchan"],
+        modelShop: [],
+        radioModelShops: false,
 
-            additives: ["E1XX", "E2XX"],
-            modelAdditives: null,
-            radioModelAdditives: false,
+        additives: ["E1XX", "E2XX"],
+        modelAdditives: [],
+        radioModelAdditives: false,
 
-            filters: ["price", "nutrition value"],
-            filterModel: null,
+        searchField: "",
 
-            showDialog: false,
-            itemSelected: null
-          }
-        },
-      mounted () {
-        this.InitProducts();
-        this.scroll();
+        showDialog: false,
+        itemSelected: null,
+
+        header: null,
+        sticky: null
+      }
+    },
+    mounted() {
+      this.headerElement = document.getElementById("myHeader");
+      this.sticky = this.headerElement.getBoundingClientRect().top;
+      this.searchProducts()
+      this.scroll();
+    },
+    methods: {
+      getNextProducts: function () {
+        this.loadingProduct = true;
+        this.currentPage++;
+        console.log('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" /*+ this.products[this.products.length-1].id*/ + this.searchCriteriaAPIParam)
+        fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" /*+ this.products[this.products.length-1].id*/ + this.searchCriteriaAPIParam).then((response) => {
+          return response.json()
+        }).then((data) => {
+          //this.products = data.filter(product => product.product_name);
+          this.products = this.products.concat(data);
+          this.loadingProduct = false;
+          console.log(this.products)
+        })
       },
-      methods: {
-          InitProducts: function() {
-            this.loadingProduct = true;
-            this.currentPage = 1;
-            this.rowsPerPage = 60;
-            fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage).then((response) => {
-              return response.json()
-            }).then((data) => {
-              //this.products = data.filter(product => product.product_name);
-              this.products = data;
-              this.loadingProduct = false;
-            })
-          },
-        getNextProducts: function() {
-          this.loadingProduct = true;
-          this.currentPage++;
-          fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" + this.products[this.products.length-1].id).then((response) => {
-            return response.json()
-          }).then((data) => {
-            //this.products = data.filter(product => product.product_name);
-            this.products = this.products.concat(data);
-            this.loadingProduct = false;
-            console.log(this.products)
+      searchProducts: function () {
+        this.loadingProduct = true;
+        this.currentPage = 1;
+        this.rowsPerPage = 60;
+        this.searchCriteriaAPIParam = "";
+        if (this.modelAlergenes.length > 0) {
+          this.searchCriteriaAPIParam += "&allergen="
+          this.modelAlergenes.forEach((alergen, index) => {
+            if (index == 0)
+              this.searchCriteriaAPIParam += alergen;
+            else
+              this.searchCriteriaAPIParam += "+" + alergen
           })
-        },
-          showAlert: function(item) {
-            return alert(item.product_name)
-          },
-        scroll () {
-          window.onscroll = () => {
-            let bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight >= document.documentElement.offsetHeight * 0.8
-
-            if (bottomOfWindow && !this.loadingProduct) {
-              this.getNextProducts()
-            }
+        }
+        if (this.modelAdditives.length > 0) {
+          this.searchCriteriaAPIParam += "&additive="
+          this.modelAdditives.forEach((additive, index) => {
+            if (index == 0)
+              this.searchCriteriaAPIParam += additive;
+            else
+              this.searchCriteriaAPIParam += "+" + additive
+          })
+        }
+        if (this.modelShop.length > 0) {
+          this.searchCriteriaAPIParam += "&shop="
+          this.modelShop.forEach((shop, index) => {
+            if (index == 0)
+              this.searchCriteriaAPIParam += shop;
+            else
+              this.searchCriteriaAPIParam += "+" + shop
+          })
+        }
+        if (this.searchField !== "") {
+          this.searchCriteriaAPIParam += "&name=" + this.searchField;
+        }
+        this.headers.forEach((header) => {
+          if(header.filter == -1) {
+            this.searchCriteriaAPIParam += '&sorted_by=' + header.id + '&order=increasing'
+          } else if(header.filter == 1) {
+            this.searchCriteriaAPIParam += '&sorted_by=' + header.id + '&order=decreasing'
           }
-        },
-        removeAlergene (item) {
-          const index = this.modelAlergenes.indexOf(item);
-          if (index >= 0) this.modelAlergenes.splice(index, 1)
-        },
-        removeShop (item) {
-          const index = this.modelShop.indexOf(item);
-          if (index >= 0) this.modelShop.splice(index, 1)
-        },
-        removeAdditive (item) {
-          const index = this.modelAdditives.indexOf(item);
-          if (index >= 0) this.modelAdditives.splice(index, 1)
-        },
+        });
+        console.log('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam);
+        fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam).then((response) => {
+          return response.json()
+        }).then((data) => {
+          //this.products = data.filter(product => product.product_name);
+          this.products = data;
+          this.loadingProduct = false;
+          console.log(this.products)
+        })
+      },
+      scroll() {
+        window.onscroll = () => {
+          let bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight >= document.documentElement.offsetHeight * 0.8
 
-        computeCriteria() {
-
+          if (bottomOfWindow && !this.loadingProduct) {
+            this.getNextProducts()
+          }
+          if (window.pageYOffset > this.sticky) {
+            this.headerElement.classList.add("sticky");
+          } else {
+            this.headerElement.classList.remove("sticky");
+          }
         }
       },
-      computed: {
+      removeAlergene(item) {
+        const index = this.modelAlergenes.indexOf(item);
+        if (index >= 0) this.modelAlergenes.splice(index, 1)
       },
-      beforeDestroy () {
-          window.onscroll = null;
+      removeShop(item) {
+        const index = this.modelShop.indexOf(item);
+        if (index >= 0) this.modelShop.splice(index, 1)
+      },
+      removeAdditive(item) {
+        const index = this.modelAdditives.indexOf(item);
+        if (index >= 0) this.modelAdditives.splice(index, 1)
+      },
+      selectFilterColumn(colName) {
+        this.headers.forEach((col, index) => {
+          if(col.name === colName) {
+            if(col.filter == 0)
+              this.headers[index].filter = -1;
+            else if(col.filter == -1)
+              this.headers[index].filter = 1;
+            else
+              this.headers[index].filter = 0;
+          } else {
+            this.headers[index].filter = 0;
+          }
+        });
+        this.searchProducts();
+      },
+      getArrow(header) {
+        if(header.filter == -1)
+          return '\u2193';
+        else if(header.filter == 1)
+          return '\u2191';
+        else
+          return '';
+      },
+      showAlert(msg) {
+        alert(msg)
       }
+    },
+    computed: {
+    },
+    beforeDestroy() {
+      window.onscroll = null;
     }
+  }
 </script>
 
 <style scoped>
+  element {
+    --number-col-selected: 5;
+  }
+
   v-select {
     display: grid;
   }
+
+  .sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
+
+  .nutriment-row {
+    width: 33vw;
+    min-width: 8vw;
+  }
+  .product-name-row {
+    width: 33vw;
+    min-width: 15vw;
+  }
+
+  #row-wrapper:hover {
+    background: #838383;
+    cursor: pointer;
+  }
+
+  .container-table {
+    overflow-x: auto;
+  }
+
+
 </style>
