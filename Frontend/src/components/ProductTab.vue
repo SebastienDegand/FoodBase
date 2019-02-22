@@ -153,13 +153,6 @@
 
       <v-card-title>
         <v-flex xs12 sm6 d-flex>
-          <v-select
-            v-model="filterModel"
-            :items="filters"
-            label="Filter By"
-            outline
-          ></v-select>
-          <v-spacer></v-spacer>
           <v-text-field
             v-model="searchField"
             label="Name of the product"
@@ -168,63 +161,38 @@
           <v-btn color="blue" dark large @click="searchProducts()">Search</v-btn>
         </v-flex>
       </v-card-title>
+      <v-card-title>
+      <v-checkbox v-for="header in headers"
+                  v-model="header.enabled"
+                  :label="header.name"
+      ></v-checkbox>
+      </v-card-title>
 
-      <table width="100%" id="myHeader" style="background-color: white; font-size: 15px; border-bottom: 2px solid #1c85ff;">
-        <thead>
+      <div class="container-table">
+      <table id="myHeader" style="table-layout: fixed; background-color: white; font-size: 15px; border-bottom: 2px solid #1c85ff;">
+        <div style="width: 100%">
         <tr>
-          <th style="width: 15vw; max-width: 15vw; min-width: 15vw">Product name</th>
-          <th class="nutriment-row" v-for="header in h">{{header}}</th>
+          <th class="product-name-row">Product name</th>
+          <th @click="selectFilterColumn(header.name)" style="cursor: pointer" class="nutriment-row" v-for="header in headers" v-if="header.enabled">{{header.name}} <b>{{getArrow(header)}}</b></th>
         </tr>
-        </thead>
+        </div>
       </table>
       <table width="100%" style="font-size: 11px">
         <tbody>
         <div v-for="product in products" id="row-wrapper" @click="showDialog = true; itemSelected = product">
           <tr>
-            <td style="width: 15vw; max-width: 15vw; min-width: 15vw; font-size: 16px">{{ product.product_name }}</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.sugars_100g">{{
-              product.nutriments.sugars_100g.toString().substring(0,5) }}
+            <td class="product-name-row" style="font-size: 16px">{{ product.product_name }}</td>
+
+            <td class="text-xs-right nutriment-row" v-for="header in headers" v-if="header.enabled && product[header.id.split('.')[0]]&& product[header.id.split('.')[0]][header.id.split('.')[1]]">{{
+              product[header.id.split('.')[0]][header.id.split('.')[1]].toString().substring(0,5) }}
             </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.salt_100g ">{{
-              product.nutriments.salt_100g.toString().substring(0,5) }}
-            </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.sodium_100g">{{
-              product.nutriments.sodium_100g.toString().substring(0,5) }}
-            </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.fiber_100g ">{{
-              product.nutriments.fiber_100g.toString().substring(0,5) }}
-            </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.carbohydrates_100g ">
-              {{ product.nutriments.carbohydrates_100g.toString().substring(0,5) }}
-            </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.fat_100g ">{{
-              product.nutriments.fat_100g.toString().substring(0,5) }}
-            </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.alcohol_100g ">{{
-              product.nutriments.alcohol_100g.toString().substring(0,5) }}
-            </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.energy_100g ">{{
-              product.nutriments.energy_100g.toString().substring(0,5) }}
-            </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.nutriments && product.nutriments.proteins_100g ">{{
-              product.nutriments.proteins_100g.toString().substring(0,5) }}
-            </td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
-            <td class="text-xs-right nutriment-row" v-if="product.price">{{ product.price }}</td>
-            <td class="text-xs-right nutriment-row" v-else>?</td>
+            <td class="text-xs-right nutriment-row" v-else-if="header.enabled">?</td>
           </tr>
           <hr>
         </div>
         </tbody>
       </table>
+      </div>
 
     </v-card>
   </div>
@@ -236,47 +204,37 @@
     data() {
       return {
         products: [],
-        h: ['Sugar (100g)', 'Salt (100g)', 'Sodium (100g)', 'Fiber (100g)', 'Carbohydrates (100g)', 'Fat (100g)', 'Alcohol (100g)', 'Energy (100g)', 'Proteins (100g)', 'Price'],
-        headers: [
-          {
-            text: 'Product name',
-            align: 'left',
-            sortable: false,
-            value: 'product_name'
-          },
-          {text: 'Sugar (100g)', value: 'sugar'},
-          {text: 'Salt (100g)', value: 'salt'},
-          {text: 'Sodium (100g)', value: 'sodium'},
-          {text: 'Fiber (100g)', value: 'fiber'},
-          {text: 'Carbohydrates (100g)', value: 'carbohydrates'},
-          {text: 'Fat (100g)', value: 'fat'},
-          {text: 'Alcohol (100g)', value: 'alcohol'},
-          {text: 'Energy (100g)', value: 'energy'},
-          {text: 'Proteins (100g)', value: 'proteins'},
-          {text: 'Price', value: 'price'}
-        ],
+        headers: [{name: 'Sugar (100g)', enabled: false, filter: 0, id: 'nutriments.sugars_100g'},
+          {name: 'Salt (100g)', enabled: false, filter: 0, id: 'nutriments.salt_100g '},
+          {name: 'Sodium (100g)', enabled: false, filter: 0, id: 'nutriments.sodium_100g'},
+          {name: 'Fiber (100g)', enabled: false, filter: 0, id: 'nutriments.fiber_100g'},
+          {name: 'Carbohydrates (100g)', enabled: false, filter: 0, id: 'nutriments.carbohydrates_100g'},
+          {name: 'Fat (100g)', enabled: false, filter: 0, id: 'product.nutriments.fat_100g'},
+          {name: 'Alcohol (100g)', enabled: false, filter: 0, id: 'nutriments.alcohol_100g'},
+          {name: 'Energy (100g)', enabled: false, filter: 0, id: 'nutriments.energy_100g'},
+          {name: 'Proteins (100g)', enabled: false, filter: 0, id: 'nutriments.proteins_100g'},
+          {name: 'Score', enabled: true, filter: 0, id: 'scoring.score'},
+          {name: 'Price', enabled: true, filter: 0, id: 'pricing.price'}
+          ],
+        //h: [{name: 'Sugar (100g)', enabled: true}, {name: 'Salt (100g)', enabled: true}, {name: 'Sodium (100g)', enabled: true}, {name: 'Fiber (100g)', enabled: true}, {name: 'Carbohydrates (100g)', enabled: true}, {name: 'Fat (100g)', enabled: true}, {name: 'Alcohol (100g)', enabled: true}, {name: 'Energy (100g)', enabled: true}, {name: 'Proteins (100g)', enabled: false}, {name: 'Score', enabled: false}, {name: 'Price', enabled: true}],
         currentPage: 1,
         rowsPerPage: 60,
         loadingProduct: false,
-        isLoading: false,
 
         searchCriteriaAPIParam: "",
 
 
         alergenes: ["milk", "egg", "egg", "nuts", "b", "c", "d", "e"],
-        modelAlergenes: null,
+        modelAlergenes: [],
         radioModelAlergenes: false,
 
         shops: ["carrefour", "auchan"],
-        modelShop: null,
+        modelShop: [],
         radioModelShops: false,
 
         additives: ["E1XX", "E2XX"],
-        modelAdditives: null,
+        modelAdditives: [],
         radioModelAdditives: false,
-
-        filters: ["price", "nutrition value"],
-        filterModel: null,
 
         searchField: "",
 
@@ -288,26 +246,12 @@
       }
     },
     mounted() {
-      this.header = document.getElementById("myHeader");
-      this.sticky = this.header.getBoundingClientRect().top;
-      console.log(this.sticky);
-      this.InitProducts();
+      this.headerElement = document.getElementById("myHeader");
+      this.sticky = this.headerElement.getBoundingClientRect().top;
+      this.searchProducts()
       this.scroll();
     },
     methods: {
-      InitProducts: function () {
-        this.loadingProduct = true;
-        this.currentPage = 1;
-        this.rowsPerPage = 60;
-        console.log('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage)
-        fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage).then((response) => {
-          return response.json()
-        }).then((data) => {
-          //this.products = data.filter(product => product.product_name);
-          this.products = data;
-          this.loadingProduct = false;
-        })
-      },
       getNextProducts: function () {
         this.loadingProduct = true;
         this.currentPage++;
@@ -326,7 +270,7 @@
         this.currentPage = 1;
         this.rowsPerPage = 60;
         this.searchCriteriaAPIParam = "";
-        if (this.modelAlergenes && this.modelAlergenes.length > 0) {
+        if (this.modelAlergenes.length > 0) {
           this.searchCriteriaAPIParam += "&allergen="
           this.modelAlergenes.forEach((alergen, index) => {
             if (index == 0)
@@ -335,7 +279,7 @@
               this.searchCriteriaAPIParam += "+" + alergen
           })
         }
-        if (this.modelAdditives && this.modelAdditives.length > 0) {
+        if (this.modelAdditives.length > 0) {
           this.searchCriteriaAPIParam += "&additive="
           this.modelAdditives.forEach((additive, index) => {
             if (index == 0)
@@ -344,7 +288,7 @@
               this.searchCriteriaAPIParam += "+" + additive
           })
         }
-        if (this.modelShop && this.modelShop.length > 0) {
+        if (this.modelShop.length > 0) {
           this.searchCriteriaAPIParam += "&shop="
           this.modelShop.forEach((shop, index) => {
             if (index == 0)
@@ -356,8 +300,15 @@
         if (this.searchField !== "") {
           this.searchCriteriaAPIParam += "&name=" + this.searchField;
         }
-        console.log('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam + "&sorted_by=nutriments.sugars_100g&order=decreasing");
-        fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam + "&sorted_by=nutriments.sugars_100g&order=decreasing").then((response) => {
+        this.headers.forEach((header) => {
+          if(header.filter == -1) {
+            this.searchCriteriaAPIParam += '&sorted_by=' + header.id + '&order=increasing'
+          } else if(header.filter == 1) {
+            this.searchCriteriaAPIParam += '&sorted_by=' + header.id + '&order=decreasing'
+          }
+        });
+        console.log('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam);
+        fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam).then((response) => {
           return response.json()
         }).then((data) => {
           //this.products = data.filter(product => product.product_name);
@@ -374,9 +325,9 @@
             this.getNextProducts()
           }
           if (window.pageYOffset > this.sticky) {
-            this.header.classList.add("sticky");
+            this.headerElement.classList.add("sticky");
           } else {
-            this.header.classList.remove("sticky");
+            this.headerElement.classList.remove("sticky");
           }
         }
       },
@@ -392,8 +343,35 @@
         const index = this.modelAdditives.indexOf(item);
         if (index >= 0) this.modelAdditives.splice(index, 1)
       },
+      selectFilterColumn(colName) {
+        this.headers.forEach((col, index) => {
+          if(col.name === colName) {
+            if(col.filter == 0)
+              this.headers[index].filter = -1;
+            else if(col.filter == -1)
+              this.headers[index].filter = 1;
+            else
+              this.headers[index].filter = 0;
+          } else {
+            this.headers[index].filter = 0;
+          }
+        });
+        this.searchProducts();
+      },
+      getArrow(header) {
+        if(header.filter == -1)
+          return '\u2193';
+        else if(header.filter == 1)
+          return '\u2191';
+        else
+          return '';
+      },
+      showAlert(msg) {
+        alert(msg)
+      }
     },
-    computed: {},
+    computed: {
+    },
     beforeDestroy() {
       window.onscroll = null;
     }
@@ -401,6 +379,10 @@
 </script>
 
 <style scoped>
+  element {
+    --number-col-selected: 5;
+  }
+
   v-select {
     display: grid;
   }
@@ -412,14 +394,21 @@
   }
 
   .nutriment-row {
-    width: 8vw;
-    max-width: 8vw;
+    width: 33vw;
     min-width: 8vw;
+  }
+  .product-name-row {
+    width: 33vw;
+    min-width: 15vw;
   }
 
   #row-wrapper:hover {
     background: #838383;
     cursor: pointer;
+  }
+
+  .container-table {
+    overflow-x: auto;
   }
 
 
