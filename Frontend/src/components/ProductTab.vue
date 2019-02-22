@@ -6,7 +6,7 @@
           <span class="headline">{{itemSelected.product_name}}</span>
         </v-card-title>
         <v-card-text>
-          fff
+          <div style="text-align: left" v-for="ingredient in itemSelected.ingredients"> {{ingredient.text}}</div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -173,7 +173,7 @@
         <div style="width: 100%">
         <tr>
           <th class="product-name-row">Product name</th>
-          <th @click="selectFilterColumn(header.name)" style="cursor: pointer" class="nutriment-row" v-for="header in headers" v-if="header.enabled">{{header.name}} <b>{{getArrow(header)}}</b></th>
+          <th @click="selectFilterColumn(header.name)" style="cursor: ns-resize" class="nutriment-row" v-for="header in headers" v-if="header.enabled">{{header.name}} <b>{{getArrow(header)}}</b></th>
         </tr>
         </div>
       </table>
