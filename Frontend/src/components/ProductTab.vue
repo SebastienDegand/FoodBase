@@ -1,185 +1,11 @@
 <template>
   <div>
-    <v-dialog v-model="showDialog" v-if="itemSelected">
-      <div style="background-color: white">
-        <v-layout row wrap>
-          <v-flex xs4>
-            <v-card >
-              <v-card-title>
-                <span class="headline">{{itemSelected.product_name}}</span>
-              </v-card-title>
-              <v-card-text>
-                <div style="text-align: left" v-for="header in headers">
-                  <span v-if="header.name === 'Price' && itemSelected[header.id.split('.')[0]]&& itemSelected[header.id.split('.')[0]][header.id.split('.')[1]]">{{header.name}}: <input style="border: 2px solid dodgerblue" v-model="itemSelected[header.id.split('.')[0]][header.id.split('.')[1]]"> <button type="button" style="color: white; background-color: dodgerblue; padding: 2px" @click="updatePriceProduct">update</button></span>
-                  <span v-else-if="itemSelected[header.id.split('.')[0]]&& itemSelected[header.id.split('.')[0]][header.id.split('.')[1]]">{{header.name}}: {{itemSelected[header.id.split('.')[0]][header.id.split('.')[1]].toString().substring(0,5) }}</span>
-                  <span v-else>{{header.name}}: ?</span>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-flex>
-
-          <v-flex xs4 v-if="itemSelected.ingredients.length > 0">
-            <v-card >
-              <v-card-text>
-                <span style="font-size: 20px;">Ingredients</span>
-                <div style="text-align: left" v-for="ingredient in itemSelected.ingredients"> {{ingredient.text}}</div>
-              </v-card-text>
-            </v-card>
-          </v-flex>
-        </v-layout>
-      </div>
-    </v-dialog>
+    <product-details @closeDialog="showDialog = false" @updateProducts="searchProducts" :itemSelected="itemSelected" :headers="headers" :showDialog="showDialog"></product-details>
 
 
     <v-card>
-      <v-card-title>
+      <search-tools @searchProducts="searchEvent"></search-tools>
 
-        <v-autocomplete
-          v-model="modelAlergenes"
-          :items="alergenes"
-          box
-          chips
-          color="blue-grey lighten-2"
-          label="Search without alergenes"
-          item-text="name"
-          item-value="name"
-          multiple
-          :disabled="radioModelAlergenes"
-        >
-          <template
-            slot="selection"
-            slot-scope="data"
-          >
-            <v-chip
-              :selected="data.selected"
-              close
-              class="chip--select-multi"
-              @input="removeAlergene(data.item)"
-            >
-              {{ data.item }}
-            </v-chip>
-          </template>
-          <template
-            slot="item"
-            slot-scope="data"
-          >
-            <template>
-              <v-list-tile-content v-text="data.item"></v-list-tile-content>
-            </template>
-          </template>
-        </v-autocomplete>
-
-        <v-radio-group v-model="radioModelAlergenes">
-          <v-radio
-            :key="0"
-            :label="`some`"
-            :value="false"
-          ></v-radio>
-          <v-radio
-            :key="1"
-            :label="`any`"
-            :value="true"
-          ></v-radio>
-        </v-radio-group>
-
-        <v-spacer></v-spacer>
-
-        <v-autocomplete
-          v-model="modelShop"
-          :items="shops"
-          box
-          chips
-          color="blue-grey lighten-2"
-          label="Select shops"
-          item-text="name"
-          item-value="name"
-          multiple
-        >
-          <template
-            slot="selection"
-            slot-scope="data"
-          >
-            <v-chip
-              :selected="data.selected"
-              close
-              class="chip--select-multi"
-              @input="removeShop(data.item)"
-            >
-              {{ data.item }}
-            </v-chip>
-          </template>
-          <template
-            slot="item"
-            slot-scope="data"
-          >
-            <template>
-              <v-list-tile-content v-text="data.item"></v-list-tile-content>
-            </template>
-          </template>
-        </v-autocomplete>
-
-        <v-spacer></v-spacer>
-
-        <v-autocomplete
-          v-model="modelAdditives"
-          :items="additives"
-          box
-          chips
-          color="blue-grey lighten-2"
-          label="Search without additives"
-          item-text="name"
-          item-value="name"
-          multiple
-          :disabled="radioModelAdditives"
-        >
-          <template
-            slot="selection"
-            slot-scope="data"
-          >
-            <v-chip
-              :selected="data.selected"
-              close
-              class="chip--select-multi"
-              @input="removeAdditive(data.item)"
-            >
-              {{ data.item }}
-            </v-chip>
-          </template>
-          <template
-            slot="item"
-            slot-scope="data"
-          >
-            <template>
-              <v-list-tile-content v-text="data.item"></v-list-tile-content>
-            </template>
-          </template>
-        </v-autocomplete>
-
-        <v-radio-group v-model="radioModelAdditives">
-          <v-radio
-            :key="0"
-            :label="`some`"
-            :value="false"
-          ></v-radio>
-          <v-radio
-            :key="1"
-            :label="`any`"
-            :value="true"
-          ></v-radio>
-        </v-radio-group>
-
-      </v-card-title>
-
-      <v-card-title>
-        <v-flex xs12 sm6 d-flex>
-          <v-text-field
-            v-model="searchField"
-            label="Name of the product"
-          ></v-text-field>
-          <v-spacer></v-spacer>
-          <v-btn color="blue" dark large @click="searchProducts()">Search</v-btn>
-        </v-flex>
-      </v-card-title>
       <v-card-title>
       <v-checkbox v-for="header in headers"
                   v-model="header.enabled"
@@ -218,8 +44,11 @@
 </template>
 
 <script>
+  import ProductDetails from "./product/ProductDetails";
+  import SearchTools from "./product/SearchTools";
   export default {
     name: "ProductTab",
+    components: {SearchTools, ProductDetails},
     data() {
       return {
         products: [],
@@ -241,21 +70,6 @@
         loadingProduct: false,
 
         searchCriteriaAPIParam: "",
-
-
-        alergenes: ["milk", "egg", "egg", "nuts", "b", "c", "d", "e"],
-        modelAlergenes: [],
-        radioModelAlergenes: false,
-
-        shops: ["carrefour", "auchan"],
-        modelShop: [],
-        radioModelShops: false,
-
-        additives: ["E1XX", "E2XX"],
-        modelAdditives: [],
-        radioModelAdditives: false,
-
-        searchField: "",
 
         showDialog: false,
         itemSelected: null,
@@ -288,37 +102,6 @@
         this.loadingProduct = true;
         this.currentPage = 1;
         this.rowsPerPage = 60;
-        this.searchCriteriaAPIParam = "";
-        if (this.modelAlergenes.length > 0) {
-          this.searchCriteriaAPIParam += "&allergen="
-          this.modelAlergenes.forEach((alergen, index) => {
-            if (index == 0)
-              this.searchCriteriaAPIParam += alergen;
-            else
-              this.searchCriteriaAPIParam += "+" + alergen
-          })
-        }
-        if (this.modelAdditives.length > 0) {
-          this.searchCriteriaAPIParam += "&additive="
-          this.modelAdditives.forEach((additive, index) => {
-            if (index == 0)
-              this.searchCriteriaAPIParam += additive;
-            else
-              this.searchCriteriaAPIParam += "+" + additive
-          })
-        }
-        if (this.modelShop.length > 0) {
-          this.searchCriteriaAPIParam += "&shop="
-          this.modelShop.forEach((shop, index) => {
-            if (index == 0)
-              this.searchCriteriaAPIParam += shop;
-            else
-              this.searchCriteriaAPIParam += "+" + shop
-          })
-        }
-        if (this.searchField !== "") {
-          this.searchCriteriaAPIParam += "&name=" + this.searchField;
-        }
         this.headers.forEach((header) => {
           if(header.filter == -1) {
             this.searchCriteriaAPIParam += '&sorted_by=' + header.id + '&order=increasing'
@@ -350,18 +133,6 @@
           }
         }
       },
-      removeAlergene(item) {
-        const index = this.modelAlergenes.indexOf(item);
-        if (index >= 0) this.modelAlergenes.splice(index, 1)
-      },
-      removeShop(item) {
-        const index = this.modelShop.indexOf(item);
-        if (index >= 0) this.modelShop.splice(index, 1)
-      },
-      removeAdditive(item) {
-        const index = this.modelAdditives.indexOf(item);
-        if (index >= 0) this.modelAdditives.splice(index, 1)
-      },
       selectFilterColumn(colName) {
         this.headers.forEach((col, index) => {
           if(col.name === colName) {
@@ -377,23 +148,6 @@
         });
         this.searchProducts();
       },
-      updatePriceProduct() {
-        if(!isNaN(this.itemSelected.pricing.price)) {
-          console.log(this.itemSelected.pricing.price)
-          fetch('http://localhost:8080/api/v1/foods/' + this.itemSelected._id , {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              price: parseInt(this.itemSelected.pricing.price),
-            })
-          }).then(() => {
-            this.showDialog = false;
-            this.searchProducts()
-          });
-        }
-      },
       getArrow(header) {
         if(header.filter == -1)
           return '\u2193';
@@ -402,8 +156,9 @@
         else
           return '';
       },
-      showAlert(msg) {
-        alert(msg)
+      searchEvent(e) {
+        this.searchCriteriaAPIParam = e;
+        this.searchProducts();
       }
     },
     computed: {
