@@ -117,13 +117,18 @@
             imageUrlRecipeField: "",
             authorRecipeField: "",
 
-            alergenes: ["milk", "egg", "egg", "nuts", "b", "c", "d", "e"],
+            alergenes: [],
             modelAlergenes: [],
 
-            additives: ["E1XX", "E2XX"],
+            additives: [],
             modelAdditives: []
           }
-      }, methods:{
+      },
+      mounted() {
+          this.getAllergens();
+          this.getAdditives();
+      },
+      methods:{
         addRecipe() {
           let searchCriteriaAPIParam = "";
           if (this.modelAlergenes.length > 0) {
@@ -190,6 +195,24 @@
           const index = this.modelAdditives.indexOf(item);
           if (index >= 0) this.modelAdditives.splice(index, 1)
         },
+        getAllergens () {
+          fetch(process.env.BACKEND_API + '/allergens').then((response) => {
+            return response.json()
+          }).then((data) => {
+            for(let allergen = 0; allergen<data.length; allergen++) {
+              this.alergenes.push(data[allergen]._id)
+            }
+          })
+        },
+        getAdditives () {
+          fetch(process.env.BACKEND_API + '/additives').then((response) => {
+            return response.json()
+          }).then((data) => {
+            for(let additive = 0; additive<data.length; additive++) {
+              this.additives.push(data[additive]._id)
+            }
+          })
+        }
       },
       computed: {
         valid() {

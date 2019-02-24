@@ -156,20 +156,25 @@
         name: "SearchTools",
       data() {
           return {
-            alergenes: ["milk", "egg", "egg", "nuts", "b", "c", "d", "e"],
+            alergenes: [],
             modelAlergenes: [],
             radioModelAlergenes: false,
 
-            shops: ["carrefour", "auchan"],
+            shops: [],
             modelShop: [],
             radioModelShops: false,
 
-            additives: ["E1XX", "E2XX"],
+            additives: [],
             modelAdditives: [],
             radioModelAdditives: false,
 
             searchField: "",
           }
+      },
+      mounted () {
+        this.getAdditives();
+        this.getAllergens();
+        this.getShops();
       },
       methods: {
           search() {
@@ -207,6 +212,33 @@
 
             this.$emit("searchProducts", searchCriteriaAPIParam);
           },
+        getAllergens () {
+          fetch(process.env.BACKEND_API + '/allergens').then((response) => {
+            return response.json()
+          }).then((data) => {
+            for(let allergen = 0; allergen<data.length; allergen++) {
+              this.alergenes.push(data[allergen]._id)
+            }
+          })
+        },
+        getAdditives () {
+          fetch(process.env.BACKEND_API + '/additives').then((response) => {
+            return response.json()
+          }).then((data) => {
+            for(let additive = 0; additive<data.length; additive++) {
+              this.additives.push(data[additive]._id)
+            }
+          })
+        },
+        getShops () {
+          fetch(process.env.BACKEND_API + '/shops').then((response) => {
+            return response.json()
+          }).then((data) => {
+            for(let shop = 0; shop<data.length; shop++) {
+              this.shops.push(data[shop]._id)
+            }
+          })
+        },
         removeAlergene(item) {
           const index = this.modelAlergenes.indexOf(item);
           if (index >= 0) this.modelAlergenes.splice(index, 1)
