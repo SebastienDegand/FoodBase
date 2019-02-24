@@ -75,7 +75,7 @@ app.put("/api/v1/foods/:id", async function(req, res) {
   try {
     console.log("update pricing");
     let price = req.body.price;
-    let store = req.body.store;
+    let store = req.body.store ? req.body.store : "";
     let entryDate = +new Date();
     let pricing = {};
     pricing.price = price;

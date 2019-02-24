@@ -51,18 +51,28 @@ async function findRecipeById(db, id) {
 
 async function updateFood(db, id, pricing) {
   const collection = await db.collection("france");
-  await collection.updateOne(
-    { _id: id },
-    {
-      $set: {
-        pricing: {
-          price: pricing.price,
-          entryDate_t: pricing.entryDate
+  if (pricing.price) {
+    await collection.updateOne(
+      { _id: id },
+      {
+        $set: {
+          pricing: {
+            price: pricing.price,
+            entryDate_t: pricing.entryDate
+          }
         }
-      },
-      $push: { stores_tags: pricing.store }
-    }
-  );
+      }
+    );
+  }
+  if (pricing.store != "") {
+    await collection.updateOne(
+      { _id: id },
+      {
+        $addToSet: { stores_tags: pricing.store }
+      }
+    );
+  }
+
   const food = await collection.findOne({ _id: id });
   return food;
 }

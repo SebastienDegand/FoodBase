@@ -140,7 +140,7 @@ describe("Utils test", function() {
       entryDate = food.pricing.entryDate_t;
     });
 
-    after(async function() {
+    afterEach(async function() {
       const collection = await db.collection("france");
       await collection.updateOne(
         { _id: id },
@@ -164,6 +164,29 @@ describe("Utils test", function() {
       let food = await utils.updateFood(db, id, pricing);
       assert.strictEqual(food.pricing.price, price * 2);
       assert.strictEqual(food.pricing.entryDate_t, entryDate + 1);
+      assert.strictEqual(food.stores_tags.includes(shops[0] + shops[0]), true);
+    });
+
+    it("update food price only", async function() {
+      let pricing = {};
+      pricing.price = price * 2;
+      pricing.entryDate = entryDate + 1;
+      pricing.store = "";
+      let food = await utils.updateFood(db, id, pricing);
+      assert.strictEqual(food.pricing.price, price * 2);
+      assert.strictEqual(food.pricing.entryDate_t, entryDate + 1);
+      assert.strictEqual(
+        shops[shops.length - 1],
+        food.stores_tags[food.stores_tags.length - 1]
+      );
+    });
+
+    it("update food store only", async function() {
+      let pricing = {};
+      pricing.store = shops[0] + shops[0];
+      let food = await utils.updateFood(db, id, pricing);
+      assert.strictEqual(food.pricing.price, price);
+      assert.strictEqual(food.pricing.entryDate_t, entryDate);
       assert.strictEqual(food.stores_tags.includes(shops[0] + shops[0]), true);
     });
   });
