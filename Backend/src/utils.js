@@ -162,17 +162,25 @@ async function getShops(db) {
 
 async function createAllergensCollection(db) {
   const collection = await db.collection("france");
-  const allergens = await db.collection("allergens");
+  const allergens = await db.collection("allergen");
   var progression = 0;
   collection.find().forEach(function(t) {
     progression += 1;
+    t.allergens_tags.forEach(function(e) {
+      let a = e.substring(3, e.length);
+      allergens.insertOne({
+        _id: a
+      }).catch(function(err) {
+        // duplicate key, just skip it
+      });
+    });
     console.log("Progression: " + progression);
   })
   console.log("Succesfully created allergens collection");
 }
 
 async function getAllergens(db) {
-  const collection = await db.collection("allergens");
+  const collection = await db.collection("allergen");
   let result;
   result = await collection
     .find()
