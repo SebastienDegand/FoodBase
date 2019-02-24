@@ -210,6 +210,32 @@ app.get("/api/v1/allergens", async function(req, res) {
   }
 });
 
+app.get("/api/v1/collections/additives", async function(req, res) {
+  try {
+    console.log("create additives collection");
+    const result = await utils.createAdditivesCollection(
+      db
+    );
+    res.send(result);
+    console.log("collection additives created");
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+app.get("/api/v1/additives", async function(req, res) {
+  try {
+    console.log("get additives");
+    const result = await utils.getAdditives(
+      db
+    );
+    res.send(result);
+    console.log("additives found");
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 (async () => {
   try {
     const client = await new MongoClient(url, { useNewUrlParser: true });

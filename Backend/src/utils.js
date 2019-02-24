@@ -188,6 +188,34 @@ async function getAllergens(db) {
   return result;
 }
 
+async function createAdditivesCollection(db) {
+  const collection = await db.collection("france");
+  const additives = await db.collection("additive");
+  var progression = 0;
+  collection.find().forEach(function(t) {
+    progression += 1;
+    t.additives_tags.forEach(function(e) {
+      let a = e.substring(3, e.length);
+      additives.insertOne({
+        _id: a
+      }).catch(function(err) {
+        // duplicate key, just skip it
+      });
+    });
+    console.log("Progression: " + progression);
+  })
+  console.log("Succesfully created additives collection");
+}
+
+async function getAdditives(db) {
+  const collection = await db.collection("additive");
+  let result;
+  result = await collection
+    .find()
+    .toArray();
+  return result;
+}
+
 module.exports = {
   findFoods: findFoods,
   findFoodById: findFoodById,
@@ -200,5 +228,7 @@ module.exports = {
   createShopCollection: createShopCollection,
   getShops: getShops,
   createAllergensCollection: createAllergensCollection,
-  getAllergens: getAllergens
+  getAllergens: getAllergens,
+  createAdditivesCollection: createAdditivesCollection,
+  getAdditives: getAdditives
 };
