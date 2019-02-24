@@ -132,6 +132,54 @@ async function getComments(db, pagination, recipeId) {
   return result;
 }
 
+async function createShopCollection(db) {
+  const collection = await db.collection("france");
+  const shop = await db.collection("shop");
+  var progression = 0;
+  collection.find().forEach(function(t) {
+    progression += 1;
+    t.stores_tags.forEach(function(e) {
+      shop.insertOne({
+        _id: e
+      }).catch(function(err) {
+        // duplicate key, just skip it
+      });
+      
+    })
+    console.log("Progression: " + progression);
+  })
+  console.log("Succesfully created shop collection");
+}
+
+async function getShops(db) {
+  const collection = await db.collection("shop");
+  let result;
+  result = await collection
+    .find()
+    .toArray();
+  return result;
+}
+
+async function createAllergensCollection(db) {
+  const collection = await db.collection("france");
+  const allergens = await db.collection("allergens");
+  var progression = 0;
+  collection.find().forEach(function(t) {
+    progression += 1;
+    console.log("Progression: " + progression);
+  })
+  console.log("Succesfully created allergens collection");
+}
+
+async function getAllergens(db) {
+  const collection = await db.collection("allergens");
+  let result;
+  result = await collection
+    .find()
+    .toArray();
+  return result;
+}
+
 module.exports = {
   findFoods: findFoods,
   findFoodById: findFoodById,
@@ -140,5 +188,9 @@ module.exports = {
   addRecipe: addRecipe,
   getRecipes: getRecipes,
   addComment: addComment,
-  getComments: getComments
+  getComments: getComments,
+  createShopCollection: createShopCollection,
+  getShops: getShops,
+  createAllergensCollection: createAllergensCollection,
+  getAllergens: getAllergens
 };

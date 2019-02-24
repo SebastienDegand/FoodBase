@@ -158,6 +158,58 @@ app.get("/api/v1/recipes/:id/comments", async function(req, res) {
   }
 });
 
+app.get("/api/v1/collections/shop", async function(req, res) {
+  try {
+    console.log("create shop collection");
+    const result = await utils.createShopCollection(
+      db
+    );
+    res.send(result);
+    console.log("collection shop created");
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+app.get("/api/v1/shops", async function(req, res) {
+  try {
+    console.log("get shops");
+    const result = await utils.getShops(
+      db
+    );
+    res.send(result);
+    console.log("shops found");
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+app.get("/api/v1/collections/allergens", async function(req, res) {
+  try {
+    console.log("create allergens collection");
+    const result = await utils.createAllergensCollection(
+      db
+    );
+    res.send(result);
+    console.log("collection allergens created");
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+app.get("/api/v1/allergens", async function(req, res) {
+  try {
+    console.log("get allergens");
+    const result = await utils.getAllergens(
+      db
+    );
+    res.send(result);
+    console.log("allergens found");
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 (async () => {
   try {
     const client = await new MongoClient(url, { useNewUrlParser: true });
