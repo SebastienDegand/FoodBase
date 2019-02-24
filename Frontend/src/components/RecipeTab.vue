@@ -69,7 +69,7 @@
       initRecipes: function () {
         this.currentPage = 1;
         this.rowsPerPage = 60;
-        fetch('http://localhost:8080/api/v1/recipes?page=' + this.currentPage + '&per_page=' + this.rowsPerPage).then((response) => {
+        fetch(process.env.BACKEND_API + '/recipes?page=' + this.currentPage + '&per_page=' + this.rowsPerPage).then((response) => {
           return response.json()
         }).then((data) => {
           this.recipes = data;
@@ -81,8 +81,7 @@
         this.getComments(recipe);
       },
       getComments(recipe) {
-        fetch('http://localhost:8080/api/v1/recipes/' + recipe._id +'/comments').then((response) => {
-          console.log(response.body)
+        fetch(process.env.BACKEND_API + '/recipes/' + recipe._id +'/comments').then((response) => {
           return response.json()
         }).then((data) => {
           this.comments = data;

@@ -88,8 +88,8 @@
       getNextProducts: function () {
         this.loadingProduct = true;
         this.currentPage++;
-        console.log('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" /*+ this.products[this.products.length-1].id*/ + this.searchCriteriaAPIParam)
-        fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" /*+ this.products[this.products.length-1].id*/ + this.searchCriteriaAPIParam).then((response) => {
+        console.log(process.env.BACKEND_API + '/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" /*+ this.products[this.products.length-1].id*/ + this.searchCriteriaAPIParam)
+        fetch(process.env.BACKEND_API + '/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" /*+ this.products[this.products.length-1].id*/ + this.searchCriteriaAPIParam).then((response) => {
           return response.json()
         }).then((data) => {
           //this.products = data.filter(product => product.product_name);
@@ -102,15 +102,16 @@
         this.loadingProduct = true;
         this.currentPage = 1;
         this.rowsPerPage = 60;
+        let filterCriteriaAPIParam = "";
         this.headers.forEach((header) => {
           if(header.filter == -1) {
-            this.searchCriteriaAPIParam += '&sorted_by=' + header.id + '&order=increasing'
+            filterCriteriaAPIParam += '&sorted_by=' + header.id + '&order=increasing'
           } else if(header.filter == 1) {
-            this.searchCriteriaAPIParam += '&sorted_by=' + header.id + '&order=decreasing'
+            filterCriteriaAPIParam += '&sorted_by=' + header.id + '&order=decreasing'
           }
         });
-        console.log('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam);
-        fetch('http://localhost:8080/api/v1/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam).then((response) => {
+        console.log(process.env.BACKEND_API + '/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam + filterCriteriaAPIParam);
+        fetch(process.env.BACKEND_API + '/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam + filterCriteriaAPIParam).then((response) => {
           return response.json()
         }).then((data) => {
           //this.products = data.filter(product => product.product_name);

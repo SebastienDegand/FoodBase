@@ -85,7 +85,7 @@
       },
       methods: {
         addComment(recipe) {
-          fetch('http://localhost:8080/api/v1/recipes/' + recipe._id + '/comments', {
+          fetch(process.env.BACKEND_API + '/recipes/' + recipe._id + '/comments', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

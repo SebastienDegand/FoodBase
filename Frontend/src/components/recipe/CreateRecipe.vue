@@ -148,7 +148,7 @@
           let ingredientsFound = [];
           let promises = []
           ingredients.forEach((ingredient) => {
-            promises.push(fetch('http://localhost:8080/api/v1/foods?page=1&per_page=1&name=' + ingredient + searchCriteriaAPIParam).then((response) => {
+            promises.push(fetch(process.env.BACKEND_API + '/foods?page=1&per_page=1&name=' + ingredient + searchCriteriaAPIParam).then((response) => {
               return response.json()
             }).then((data) => {
               if (data.length > 0)
@@ -156,7 +156,7 @@
             }))
           });
           Promise.all(promises).then(() => {
-            fetch('http://localhost:8080/api/v1/recipes', {
+            fetch(process.env.BACKEND_API + '/recipes', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'

@@ -42,7 +42,7 @@
         updatePriceProduct() {
           if(!isNaN(this.itemSelected.pricing.price)) {
             console.log(this.itemSelected.pricing.price)
-            fetch('http://localhost:8080/api/v1/foods/' + this.itemSelected._id , {
+            fetch(process.env.BACKEND_API + '/foods/' + this.itemSelected._id , {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json'
