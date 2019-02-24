@@ -63,7 +63,7 @@ if (process.env.NODE_ENV === 'production') {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"',
-        BACKEND_API: '"http://localhost:8080/api/v1"'
+        BACKEND_API: '"https://foodbase-server.herokuapp.com/api/v1"'
       }
     }),
     new webpack.optimize.UglifyJsPlugin({
