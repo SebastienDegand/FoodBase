@@ -9,9 +9,23 @@
             </v-card-title>
             <v-card-text>
               <div style="text-align: left" v-for="header in headers">
-                <span v-if="header.name === 'Price' && itemSelected[header.id.split('.')[0]]&& itemSelected[header.id.split('.')[0]][header.id.split('.')[1]]">{{header.name}}: <input style="border: 2px solid dodgerblue" v-model="itemSelected[header.id.split('.')[0]][header.id.split('.')[1]]"> <button type="button" style="color: white; background-color: dodgerblue; padding: 2px" @click="updatePriceProduct">update</button></span>
+                <span v-if="header.name === 'Price'">{{header.name}}: <input style="border: 2px solid dodgerblue" v-model="itemSelected[header.id.split('.')[0]][header.id.split('.')[1]]"> <button type="button" style="color: white; background-color: dodgerblue; padding: 2px" @click="updatePriceProduct">update</button></span>
                 <span v-else-if="itemSelected[header.id.split('.')[0]]&& (itemSelected[header.id.split('.')[0]][header.id.split('.')[1]] || !isNaN(itemSelected[header.id.split('.')[0]][header.id.split('.')[1]]))">{{header.name}}: {{itemSelected[header.id.split('.')[0]][header.id.split('.')[1]].toString().substring(0,5) }}</span>
                 <span v-else>{{header.name}}: ?</span>
+              </div>
+            </v-card-text>
+          </v-card>
+
+          <v-card >
+            <v-card-title>
+              <span class="headline">Shops</span>
+            </v-card-title>
+            <v-card-text>
+              <div style="text-align: left" v-for="shop in itemSelected.stores_tags">
+                <span>{{shop}}</span>
+              </div>
+              <div>
+                <input style="border: 2px solid dodgerblue" v-model="shopToBeAdded"><button type="button" style="color: white; background-color: dodgerblue; padding: 2px" @click="addShop">add shop</button>
               </div>
             </v-card-text>
           </v-card>
@@ -36,12 +50,16 @@
       props: {
         itemSelected: Object,
         headers: Array,
-        showDialog: Boolean,
+        showDialog: Boolean
+      },
+      data () {
+          return {
+            shopToBeAdded: ""
+          }
       },
       methods: {
         updatePriceProduct() {
           if(!isNaN(this.itemSelected.pricing.price)) {
-            console.log(this.itemSelected.pricing.price)
             fetch(process.env.BACKEND_API + '/foods/' + this.itemSelected._id , {
               method: 'PUT',
               headers: {
@@ -56,6 +74,20 @@
             });
           }
         },
+        addShop() {
+          fetch(process.env.BACKEND_API + '/foods/' + this.itemSelected._id , {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              store: this.shopToBeAdded,
+            })
+          }).then(() => {
+            this.$emit('closeDialog');
+            this.$emit('updateProducts');
+          });
+        }
       }
     }
 </script>

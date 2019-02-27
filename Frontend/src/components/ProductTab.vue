@@ -125,8 +125,7 @@
           //this.products = data.filter(product => product.product_name);
           this.products = data;
           this.loadingProduct = false;
-          console.log(this.products)
-          console.log((this.products[4]["scoring"] && (this.products[4]['scoring']['score'] || !isNaN(this.products[4]['scoring']['score']))));
+          console.log(this.products);
         })
       },
       scroll() {
