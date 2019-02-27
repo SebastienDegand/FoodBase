@@ -28,7 +28,7 @@
           <tr>
             <td class="product-name-row" style="font-size: 16px">{{ product.product_name }}</td>
 
-            <td class="text-xs-right nutriment-row" v-for="header in headers" v-if="header.enabled && product[header.id.split('.')[0]]&& product[header.id.split('.')[0]][header.id.split('.')[1]]">{{
+            <td class="text-xs-right nutriment-row" v-for="header in headers" v-if="header.enabled && product[header.id.split('.')[0]] && (product[header.id.split('.')[0]][header.id.split('.')[1]] || !isNaN(product[header.id.split('.')[0]][header.id.split('.')[1]]))">{{
               product[header.id.split('.')[0]][header.id.split('.')[1]].toString().substring(0,5) }}
             </td>
             <td class="text-xs-right nutriment-row" v-else-if="header.enabled">?</td>
@@ -53,7 +53,7 @@
       return {
         products: [],
         headers: [{name: 'Sugar (100g)', enabled: false, filter: 0, id: 'nutriments.sugars_100g'},
-          {name: 'Salt (100g)', enabled: false, filter: 0, id: 'nutriments.salt_100g '},
+          {name: 'Salt (100g)', enabled: false, filter: 0, id: 'nutriments.salt_100g'},
           {name: 'Sodium (100g)', enabled: false, filter: 0, id: 'nutriments.sodium_100g'},
           {name: 'Fiber (100g)', enabled: false, filter: 0, id: 'nutriments.fiber_100g'},
           {name: 'Carbohydrates (100g)', enabled: false, filter: 0, id: 'nutriments.carbohydrates_100g'},
@@ -88,8 +88,16 @@
       getNextProducts: function () {
         this.loadingProduct = true;
         this.currentPage++;
-        console.log(process.env.BACKEND_API + '/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" /*+ this.products[this.products.length-1].id*/ + this.searchCriteriaAPIParam)
-        fetch(process.env.BACKEND_API + '/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + "&lastid=" /*+ this.products[this.products.length-1].id*/ + this.searchCriteriaAPIParam).then((response) => {
+        let filterCriteriaAPIParam = "";
+        this.headers.forEach((header) => {
+          if(header.filter == -1) {
+            filterCriteriaAPIParam += '&sorted_by=' + header.id + '&order=increasing'
+          } else if(header.filter == 1) {
+            filterCriteriaAPIParam += '&sorted_by=' + header.id + '&order=decreasing'
+          }
+        });
+        console.log(process.env.BACKEND_API + '/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage  + this.searchCriteriaAPIParam + filterCriteriaAPIParam)
+        fetch(process.env.BACKEND_API + '/foods?page=' + this.currentPage + '&per_page=' + this.rowsPerPage + this.searchCriteriaAPIParam + filterCriteriaAPIParam).then((response) => {
           return response.json()
         }).then((data) => {
           //this.products = data.filter(product => product.product_name);
@@ -118,6 +126,7 @@
           this.products = data;
           this.loadingProduct = false;
           console.log(this.products)
+          console.log((this.products[4]["scoring"] && (this.products[4]['scoring']['score'] || !isNaN(this.products[4]['scoring']['score']))));
         })
       },
       scroll() {
