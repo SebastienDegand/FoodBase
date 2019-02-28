@@ -3,9 +3,10 @@ const app = express();
 const port = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const utils = require("./utils");
+const config = require("../config");
 
 const MongoClient = require("mongodb").MongoClient;
-const url = "mongodb://admin:password06@ds111455.mlab.com:11455/foodbasedb";
+const url = config.prod_db_url;
 const dbName = "foodbasedb";
 let db = null;
 
@@ -161,9 +162,7 @@ app.get("/api/v1/recipes/:id/comments", async function(req, res) {
 app.get("/api/v1/collections/shop", async function(req, res) {
   try {
     console.log("create shop collection");
-    const result = await utils.createShopCollection(
-      db
-    );
+    const result = await utils.createShopCollection(db);
     res.send(result);
     console.log("collection shop created");
   } catch (error) {
@@ -174,9 +173,7 @@ app.get("/api/v1/collections/shop", async function(req, res) {
 app.get("/api/v1/shops", async function(req, res) {
   try {
     console.log("get shops");
-    const result = await utils.getShops(
-      db
-    );
+    const result = await utils.getShops(db);
     res.send(result);
     console.log("shops found");
   } catch (error) {
@@ -187,9 +184,7 @@ app.get("/api/v1/shops", async function(req, res) {
 app.get("/api/v1/collections/allergens", async function(req, res) {
   try {
     console.log("create allergens collection");
-    const result = await utils.createAllergensCollection(
-      db
-    );
+    const result = await utils.createAllergensCollection(db);
     res.send(result);
     console.log("collection allergens created");
   } catch (error) {
@@ -200,9 +195,7 @@ app.get("/api/v1/collections/allergens", async function(req, res) {
 app.get("/api/v1/allergens", async function(req, res) {
   try {
     console.log("get allergens");
-    const result = await utils.getAllergens(
-      db
-    );
+    const result = await utils.getAllergens(db);
     res.send(result);
     console.log("allergens found");
   } catch (error) {
@@ -213,9 +206,7 @@ app.get("/api/v1/allergens", async function(req, res) {
 app.get("/api/v1/collections/additives", async function(req, res) {
   try {
     console.log("create additives collection");
-    const result = await utils.createAdditivesCollection(
-      db
-    );
+    const result = await utils.createAdditivesCollection(db);
     res.send(result);
     console.log("collection additives created");
   } catch (error) {
@@ -226,9 +217,7 @@ app.get("/api/v1/collections/additives", async function(req, res) {
 app.get("/api/v1/additives", async function(req, res) {
   try {
     console.log("get additives");
-    const result = await utils.getAdditives(
-      db
-    );
+    const result = await utils.getAdditives(db);
     res.send(result);
     console.log("additives found");
   } catch (error) {

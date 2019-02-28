@@ -1,14 +1,14 @@
 const assert = require("assert");
 const utils = require("../src/utils");
 const MongoClient = require("mongodb").MongoClient;
+const config = require("../config");
 
 describe("Utils test", function() {
-  this.timeout(15000);
+  this.timeout(20000);
   let db = undefined;
 
   before(async function() {
-    const url =
-      "mongodb://testdb:testdb06@ds135335.mlab.com:35335/foodbasetestdb";
+    const url = config.test_db_url;
     const dbName = "foodbasetestdb";
     const client = await new MongoClient(url, { useNewUrlParser: true });
     await client.connect();

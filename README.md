@@ -21,6 +21,10 @@ https://foodbase-server.herokuapp.com/api/v1/foods
 
 La base de données est une MongoDB déployée sur https://mlab.com/ .
 
+### Restaurer database en local
+
+#### Production database
+
 `db_prod_2019-02-28.gz` est un backup de la base de données de production.
 
 Restaurez-le dans votre base de données Mongo avec
@@ -29,12 +33,26 @@ Restaurez-le dans votre base de données Mongo avec
 mongorestore --drop --archive=db_prod_2019-02-28.gz --gzip
 ```
 
+Modifier le fichier `config.js` pour utiliser la base de données locale :
+
+```js
+config.prod_db_url = "mongodb://localhost:27017/foodbasedb";
+```
+
+#### Test database
+
 `db_test_2019-02-28.gz` est un backup de la base de données de test.
 
 Restaurez-le dans votre base de données Mongo avec
 
 ```sh
 mongorestore --drop --archive=db_test_2019-02-28.gz --gzip
+```
+
+Modifier le fichier `config.js` pour utiliser la base de données locale :
+
+```js
+config.test_db_url = "mongodb://localhost:27017/foodbasetestdb";
 ```
 
 ## Déployer l'application
