@@ -17,7 +17,25 @@ Vous pouvez également effectuer des requêtes au Backend ici:
 
 https://foodbase-server.herokuapp.com/api/v1/foods
 
+## Database
+
 La base de données est une MongoDB déployée sur https://mlab.com/ .
+
+`db_prod_2019-02-28.gz` est un backup de la base de données de production.
+
+Restaurez-le dans votre base de données Mongo avec
+
+```sh
+mongorestore --drop --archive=db_prod_2019-02-28.gz --gzip
+```
+
+`db_test_2019-02-28.gz` est un backup de la base de données de test.
+
+Restaurez-le dans votre base de données Mongo avec
+
+```sh
+mongorestore --drop --archive=db_test_2019-02-28.gz --gzip
+```
 
 ## Déployer l'application
 
